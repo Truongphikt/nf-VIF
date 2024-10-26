@@ -1,5 +1,7 @@
 process FASTQC {
     tag "$name"
+
+    container "biocontainers/fastqc:v0.11.8dfsg-2-deb_cv1"
     
     cpus     { check_max( 1, 'cpus' ) }
     memory   { check_max( 10.GB * task.attempt, 'memory' ) }

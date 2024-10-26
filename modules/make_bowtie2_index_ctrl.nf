@@ -1,7 +1,5 @@
 process MAKE_BOWTIE2_INDEX_CTRL {
-  publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
-            saveAs: { params.saveReference ? it : null }, mode: 'copy'
-
+  
   input:
   file fasta from chFastaCtrl
 

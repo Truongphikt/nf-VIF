@@ -1,10 +1,5 @@
 process HPV_LOCAL_MAPPING {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy',
-      saveAs: {filename ->
-          if (filename.endsWith(".log")) "logs/$filename"
-	  else if (params.saveAlignedIntermediates) filename
-          else null}
-
+  
   input:
   file index from bwt2IndexHpvSplit.first()
   set val(prefix), val(hpv), file(reads) from hpvGenoFilter

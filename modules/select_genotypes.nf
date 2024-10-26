@@ -1,6 +1,4 @@
 process SELECT_GENOTYPES{
-  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy'
-
   input:
   set val(prefix), file(bam) from hpvBam 
 

@@ -1,5 +1,5 @@
 process HPV_LOCAL_MAPPING_STATS {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy'
+  container "biocontainers/bedtools:v2.28.0_cv2"
   
   input:
   set val(prefix), file(bam) from hpvLocalBam

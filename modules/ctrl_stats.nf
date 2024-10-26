@@ -1,6 +1,5 @@
 process CTRL_STATS {
   tag "$prefix"
-  publishDir "${params.outdir}/ctrlMapping/", mode: 'copy'
 
   input:
   set val(prefix), file(bam) from ctrlBam

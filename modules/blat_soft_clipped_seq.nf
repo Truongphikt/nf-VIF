@@ -1,6 +1,5 @@
 process BLAT_SOFT_CLIPPED_SEQ {
-    publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
-
+    
     when:
     !params.skipBlat
 

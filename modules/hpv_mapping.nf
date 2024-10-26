@@ -1,10 +1,5 @@
 process HPV_MAPPING {
   tag "$prefix"
-  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy',
-        saveAs: {filename ->
-            if (filename.endsWith(".log")) "logs/$filename"
-            else if (params.saveAlignedIntermediates) filename
-	    else null}
 
   input:
   set val(prefix), file(reads) from readsHpvmap

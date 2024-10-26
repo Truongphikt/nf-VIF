@@ -1,9 +1,5 @@
 process EXTRACT_BREAKPOINTS_SEQUENCE {
-   publishDir "${params.outdir}/hpvMapping/softclipped", mode: 'copy',
-               saveAs: {filename -> 
-                   if (filename.indexOf(".mqc") > 0) "mqc/$filename"
-		   else filename}
-
+   
    input:
    set val(prefix), file(bam) from hpvSoftBam
 

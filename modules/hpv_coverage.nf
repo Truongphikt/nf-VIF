@@ -1,6 +1,5 @@
 process HPV_COVERAGE {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy'
-
+  
   input:
   set val(prefix), file(bam) from hpvCovBam
 

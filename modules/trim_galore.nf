@@ -1,8 +1,7 @@
 process TRIMGALORE {
     tag "$name" 
 
-    publishDir "${params.outdir}/trimming", mode: 'copy',
-                saveAs: {filename -> filename.indexOf(".log") > 0 ? "logs/$filename" : "$filename"}
+    container "phinguyen2000/trim-galore:231627f"
 
     input:
     set val(name), file(reads) from readsTrimgalore
