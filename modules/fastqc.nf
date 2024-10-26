@@ -2,10 +2,6 @@ process FASTQC {
     tag "$name"
 
     container "phinguyen2000/fastqc:7df4ab6"
-    
-    cpus          { 3 * task.attempt      }
-    memory        { 5.GB * task.attempt   }
-    errorStrategy { task.exitStatus in [143,137] ? 'retry' : 'ignore' }
 
     input:
     tuple val(name), path(trimmed_fastq)

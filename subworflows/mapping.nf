@@ -1,5 +1,5 @@
 include {  CTRL_MAPPING      }              from            "../modules/ctrl_mapping.nf"
-// include {  CTRL_STATS        }              from            "../modules/ctrl_stats.nf"
+include {  CTRL_STATS        }              from            "../modules/ctrl_stats.nf"
 // include {  HPV_MAPPING       }              from            "../modules/hpv_mapping.nf"
 // include {  SELECT_GENOTYPES  }              from            "../modules/select_genotypes.nf"
 
@@ -16,7 +16,9 @@ workflow MAPPING {
     CTRL_MAPPING(
         trim_fastq.combine(bwt2_index_ctrl)       // ([val(name), listpath(trimmed_fastq), path(bwt2_index_ctrl_folder)])
     )
-    // CTRL_STATS()
+    CTRL_STATS(
+        CTRL_MAPPING.out.ctrl_bam                 // ([val(name), path(ctrl_bam)])
+    )
 
     // /*
     // * HPV mapping and genotyping
