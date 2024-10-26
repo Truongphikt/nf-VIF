@@ -1,5 +1,5 @@
 include {  HPV_LOCAL_MAPPING        }             from            "../modules/hpv_local_mapping.nf"
-// include {  HPV_LOCAL_MAPPING_STATS  }             from            "../modules/hpv_local_mapping_stats.nf"
+include {  HPV_LOCAL_MAPPING_STATS  }             from            "../modules/hpv_local_mapping_stats.nf"
 // include {  HPV_COVERAGE             }             from            "../modules/hpv_coverage.nf"
 
 
@@ -16,7 +16,9 @@ workflow LOCAL_MAPPING {
                              .combine(trim_fastq, by: 0)            // ([val(prefix), val(hpv), listpath(trimmed_fastq)])
                              .combine(bwt2_index_hpv_split)         // ([val(prefix), val(hpv), listpath(trimmed_fastq), path(bwt2_index_hpv_split)])
     )
-    // HPV_LOCAL_MAPPING_STATS()
+    HPV_LOCAL_MAPPING_STATS(
+        HPV_LOCAL_MAPPING.out                   // (val(prefix), val(hpv), path(local_bam))
+    )
     // HPV_COVERAGE()
 
     // emit:

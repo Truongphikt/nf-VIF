@@ -14,7 +14,7 @@ process HPV_LOCAL_MAPPING {
   //   .dump(tag: "hpvloc")
 
   output:
-  tuple val(prefix), path("*.bam")
+  tuple val(prefix), val(hpv), path("${prefix}-${hpv}.bam")
   // set val(prefix), file("*.bam") into hpvLocalBam, hpvCovBam, hpvSoftBam
 
   script: 

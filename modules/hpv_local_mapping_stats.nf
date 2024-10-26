@@ -1,11 +1,14 @@
 process HPV_LOCAL_MAPPING_STATS {
-  container "biocontainers/bedtools:v2.28.0_cv2"
+  tag "$prefix:$hpv"
+  container "phinguyen2000/bedtools:59cb403"
   
   input:
-  set val(prefix), file(bam) from hpvLocalBam
+  tuple val(prefix), val(hpv), file(bam)
+  // set val(prefix), file(bam) from hpvLocalBam
 
   output:
-  set val(prefix), file("*_coverage.stats") into hpvCovStats
+  tuple val(prefix), path("${pfix}_coverage.stats")
+  // set val(prefix), file("*_coverage.stats") into hpvCovStats
 
   script:
   pfix= bam.toString() - ~/(.bam)?$/
