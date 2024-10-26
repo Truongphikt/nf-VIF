@@ -15,7 +15,8 @@ workflow PREPROCESSING{
     MAKE_BOWTIE2_INDEX_HPV(hpvFastaForIndex)
     MAKE_BOWTIE2_INDEX_CTRL(chFastaCtrl)
 
-    // emit:
+    emit:
+    bwt2_index_ctrl = MAKE_BOWTIE2_INDEX_CTRL.out
 
 
 }

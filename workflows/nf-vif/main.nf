@@ -1,6 +1,6 @@
 include {  PREPROCESSING                 }               from        "../../subworflows/preprocessing.nf"
 include {  QC                            }               from        "../../subworflows/qc.nf"
-// include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
+include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
 // include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
 // include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
 // include {  BLAT                          }               from        "../../subworflows/blat.nf"
@@ -35,11 +35,14 @@ workflow NF_VIF{
     */
     QC(readsTrimgalore)
 
-    // /*
-    // * Mapping
-    // */
+    /*
+    * Mapping
+    */
 
-    // MAPPING()
+    MAPPING(
+        QC.out.trim_fastq,                          // ([val(name), listpath(trimmed_fastq)])
+        PREPROCESSING.out.bwt2_index_ctrl           // ([path(bwt2_index_ctrl_folder)])
+    )
 
     // // Filter - removes all samples for which the genotype has not been detected
     // skippedNogeno = []

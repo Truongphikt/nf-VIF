@@ -5,7 +5,6 @@ process FASTQC {
     
     cpus          { 3 * task.attempt      }
     memory        { 5.GB * task.attempt   }
-    time          { 12.h * task.attempt   } 
     errorStrategy { task.exitStatus in [143,137] ? 'retry' : 'ignore' }
 
     input:
