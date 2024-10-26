@@ -1,5 +1,5 @@
 include {  PREPROCESSING                 }               from        "../../subworflows/preprocessing.nf"
-// include {  QC                            }               from        "../../subworflows/qc.nf"
+include {  QC                            }               from        "../../subworflows/qc.nf"
 // include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
 // include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
 // include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
@@ -12,6 +12,7 @@ workflow NF_VIF{
     referenceFastaForIndex
     hpvFastaForIndex
     chFastaCtrl
+    readsTrimgalore                        // ([val(name), listpath(fastq_file)])
 
 
     main:
@@ -32,7 +33,7 @@ workflow NF_VIF{
     /*
     * Quality control
     */
-    // QC()
+    QC(readsTrimgalore)
 
     // /*
     // * Mapping

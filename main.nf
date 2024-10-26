@@ -76,15 +76,15 @@ chHpvGenesCoord = Channel.fromPath(params.genesHpv)
 if(params.samplePlan){
    if(params.singleEnd){
       Channel
-         .from(file("${params.samplePlan}"))
+         .fromPath("${params.samplePlan}")
          .splitCsv(header: false)
-         .map{ row -> [ row[0], [file(row[2])]] }
+         .map{ row -> [ row[0], [row[2]]] }
          .set {readsTrimgalore}
    }else{
       Channel
-         .from(file("${params.samplePlan}"))
+         .fromPath("${params.samplePlan}")
          .splitCsv(header: false)
-         .map{ row -> [ row[0], [file(row[2]), file(row[3])]] }
+         .map{ row -> [ row[0], [row[2], row[3]]] }
          .set {readsTrimgalore}
    }
    params.reads=false
@@ -236,7 +236,8 @@ workflow{
       bwt2RefIndex,
       referenceFastaForIndex,
       hpvFastaForIndex,
-      chFastaCtrl
+      chFastaCtrl,
+      readsTrimgalore                        // ([val(name), listpath(fastq_file)])
    )
 }
 

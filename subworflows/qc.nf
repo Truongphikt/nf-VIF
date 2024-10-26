@@ -3,16 +3,18 @@ include {  FASTQC      }                  from            "../modules/fastqc.nf"
 
 workflow QC {
     take:
+    readsTrimgalore                        // ([val(name), listpath(fastq_file)])
 
     main:
-    if (!params.skipTrimming){
-    TRIMGALORE()
-    }else{
-    readsTrimgalore.into{readsHpvmap; readsSplitmap; readsCtrl; readsFastqc}
-    trimgaloreResults = Channel.from(false)
-    }
+    TRIMGALORE(readsTrimgalore)
+    // if (!params.skipTrimming){
+    // TRIMGALORE(readsTrimgalore)
+    // }else{
+    // readsTrimgalore.into{readsHpvmap; readsSplitmap; readsCtrl; readsFastqc}
+    // trimgaloreResults = Channel.from(false)
+    // }
 
-    FASTQC()
+    // FASTQC()
 
-    emit:
+    // emit:
 }
