@@ -10,6 +10,7 @@ workflow NF_VIF{
     take:
     bwt2RefIndex
     referenceFastaForIndex
+    hpvFastaForIndex
 
 
     main:
@@ -19,7 +20,8 @@ workflow NF_VIF{
 
     PREPROCESSING(
         bwt2RefIndex,
-        referenceFastaForIndex
+        referenceFastaForIndex,
+        hpvFastaForIndex
     )
 
     /**************************** Main worflow ******************************

@@ -204,6 +204,8 @@ if ( params.bwt2IndexHpv && params.bwt2IndexHpvSplit ){
    Channel.fromPath( hpvSplitBwt2Dir , checkIfExists: true)
       .ifEmpty { exit 1, "HPV index per strain: Provided index not found: ${params.bwt2IndexHpvSplit}" }
       .set { bwt2IndexHpvSplit }
+
+   hpvFastaForIndex = Channel.empty()
 }
 else if ( params.fastaHpv ){
    lastPath = params.fastaHpv.lastIndexOf(File.separator)
@@ -232,7 +234,8 @@ include {  NF_VIF  }                from           "./workflows/nf-vif/main.nf"
 workflow{
    NF_VIF(
       bwt2RefIndex,
-      referenceFastaForIndex
+      referenceFastaForIndex,
+      hpvFastaForIndex
    )
 }
 

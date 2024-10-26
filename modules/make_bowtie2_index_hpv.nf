@@ -3,20 +3,23 @@ process MAKE_BOWTIE2_INDEX_HPV {
     container "phinguyen2000/hpv_version:9c95c92"
 
     input:
-    file fasta from hpvFastaForIndex
+    path(hpv_fasta_for_index)
+    // file fasta from hpvFastaForIndex
 
     output:
-    file "bowtie2IndexHpv" into bwt2IndexHpv
-    file "bowtie2IndexHpvSplit" into bwt2IndexHpvSplit
+    path("bowtie2IndexHpv")       , emit: main
+    path("bowtie2IndexHpvSplit")  , emit: split
+    // file "bowtie2IndexHpv" into bwt2IndexHpv
+    // file "bowtie2IndexHpvSplit" into bwt2IndexHpvSplit
 
     script:
-    hpvBwt2Base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
+    hpv_bwt2_base = hpv_fasta_for_index.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
     """
     mkdir bowtie2IndexHpv
-    bowtie2-build ${fasta} bowtie2IndexHpv/${hpvBwt2Base}
+    bowtie2-build ${hpv_fasta_for_index} bowtie2IndexHpv/${hpv_bwt2_base}
 
     mkdir fastaSplit && cd fastaSplit
-    cat ../$fasta | awk '{ if (substr(\$0, 1, 1)==">") {filename=(substr(\$0,2) ".fa")} print \$0 > filename }'
+    cat ../$hpv_fasta_for_index | awk '{ if (substr(\$0, 1, 1)==">") {filename=(substr(\$0,2) ".fa")} print \$0 > filename }'
     cd .. && ls fastaSplit/* > listoffasta.txt
 
     mkdir bowtie2IndexHpvSplit
