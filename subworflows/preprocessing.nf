@@ -5,19 +5,19 @@ include {  MAKE_BOWTIE2_INDEX_CTRL }        from        "../modules/make_bowtie2
 
 workflow PREPROCESSING{
     take:
+    bwt2RefIndex
+    referenceFastaForIndex
 
     main:
-    if ( !params.bwt2Index && params.fasta ){
-        MAKE_BOWTIE2_INDEX() 
-    }
+    MAKE_BOWTIE2_INDEX(referenceFastaForIndex)
 
-    if ( (!params.bwt2IndexHpv | !params.bwt2IndexHpvSplit) && params.fastaHpv ){
-        MAKE_BOWTIE2_INDEX_HPV()
-    }
+    // if ( (!params.bwt2IndexHpv | !params.bwt2IndexHpvSplit) && params.fastaHpv ){
+    //     MAKE_BOWTIE2_INDEX_HPV()
+    // }
 
-    MAKE_BOWTIE2_INDEX_CTRL()
+    // MAKE_BOWTIE2_INDEX_CTRL()
 
-    emit:
+    // emit:
 
 
 }

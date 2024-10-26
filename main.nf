@@ -164,12 +164,14 @@ if ( params.bwt2Index ){
    Channel.fromPath( refBwt2Dir , checkIfExists: true)
       .ifEmpty { exit 1, "Genome index: Provided index not found: ${params.bwt2Index}" }
       .set { bwt2RefIndex }
-
+   
+   referenceFastaForIndex = Channel.empty()
 }
 else if ( params.fasta ) {
    lastPath = params.fasta.lastIndexOf(File.separator)
    refBwt2Base = params.fasta.substring(lastPath+1)
 
+   bwt2RefIndex = Channel.empty()
    Channel.fromPath( params.fasta )
         .ifEmpty { exit 1, "Genome index: Fasta file not found: ${params.fasta}" }
         .set { referenceFastaForIndex }
@@ -227,6 +229,11 @@ vif_ob.headerInfo()
 
 include {  NF_VIF  }                from           "./workflows/nf-vif/main.nf"
 
+workflow{
+   NF_VIF(
+      bwt2RefIndex,
+      referenceFastaForIndex
+   )
+}
 
-NF_VIF()
 
