@@ -15,7 +15,7 @@ process WORKFLOW_SUMMARY_MQC {
   plot_type: 'html'
   data: |
       <dl class=\"dl-horizontal\">
-${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }.join("\n")}
+${vif_ob.summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }.join("\n")}
       </dl>
   """.stripIndent()
 }

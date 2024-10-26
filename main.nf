@@ -20,77 +20,17 @@ This script is based on the nf-core guidelines. See https://nf-co.re/ for more i
  #### Homepage / Documentation
  https://gitlab.curie.fr/data-analysis/illumina-hpv
 ----------------------------------------------------------------------------------------
-*/
 
-
-def helpMessage() {
-    log.info"""
-    
-    HPV v${workflow.manifest.version}
-    =======================================================
-
-    Usage:
-
-    nextflow run main.nf --reads '*_R{1,2}.fastq.gz' --genome 'hg19' -profile conda
-    nextflow run main.nf --samplePlan sample_plan --genome hg19 -profile conda
-
-    Mandatory arguments:
-      --reads                       Path to input data (must be surrounded with quotes)
-      --samplePlan                  Path to sample plan file if '--reads' is not specified
-      --genome                      Name of iGenomes reference
-      -profile                      Configuration profile to use. test / conda / toolsPath / singularity / cluster (see below)
-
-    Options:
-      --singleEnd                   Specifies that the input is single end reads
-
-    Genome References:              If not specified in the configuration file or you wish to overwrite any of the references.
-      --genome                      Name of iGenomes reference
-      --bwt2Index                   Path to Bowtie2 index
-      --fasta                       Path to Fasta reference (.fasta)
-      --blatdb                      Path to BLAT database (.2bit)
-
-    HPV References:
-      --fastaHpv                    Path to Fasta HPV reference (.fasta)                 
-      --bwt2IndexHpv                Path to Bowtie2 index for all HPV strains
-      --bwt2IndexHpvSplit           Path to Bowtie2 index per HPV strain
-      --saveReference               Save all references generated during the analysis. Default: False
-
-    Advanced options:
-      --minMapq                     Minimum reads mapping quality. Default: 0
-      --minLen                      Minimum trimmed length sequence to consider. Default: 15
-      --minFreqGeno                 Fraction of reads to consider a genotpye. Default: 0.2
-      --nbGeno                      Number of HPV genotype to consider
-      --splitReport                 Generate one report per sample
- 
-    Other options:
-      --outdir                      The output directory where the results will be saved
-      --email                       Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
-      -name                         Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic.
-
-     Skip options:
-      --skipTrimming               Skip trimming step
-      --skipFastqc                 Skip quality controls on sequencing reads
-      --skipBlat                   Skip Human mapping with Blat
-      --skipMultiqc                Skip report
-
-    =======================================================                                                                                                                                                 
-    Available Profiles
-      -profile test                Set up the test dataset
-      -profile conda               Build a new conda environment before running the pipeline
-      -profile toolsPath           Use the paths defined in configuration for each tool
-      -profile singularity         Use the Singularity images for each process
-      -profile cluster             Run the workflow on the cluster, instead of locally
-
-    """.stripIndent()
-}
 
 /*
  * SET UP CONFIGURATION VARIABLES
  */
 
+vif_ob = VIF(workflow, log, params, "$USER")
+
 // Show help emssage
 if (params.help){
-    helpMessage()
+    vif_ob.helpMessage()
     exit 0
 }
 
@@ -274,40 +214,7 @@ else{
 }
 
 // Header log info
-log.info """=======================================================
-
-HPV v${workflow.manifest.version}"
-======================================================="""
-def summary = [:]
-summary['Pipeline Name']  = 'HPV'
-summary['Pipeline Version'] = workflow.manifest.version
-summary['Run Name']     = customRunName ?: workflow.runName
-if (params.samplePlan) {
-   summary['SamplePlan']   = params.samplePlan
-}else{
-   summary['Reads']        = params.reads
-}
-summary['Fasta Ref']      = params.fasta
-summary['BLAT database']  = params.blatdb
-summary['Fasta HPV']      = params.fastaHpv
-summary['Min MAPQ']       = params.minMapq
-summary['Min length']     = params.minLen
-summary['Min Freq Geno']  = params.minFreqGeno
-summary['Split report']   = params.splitReport
-summary['Max Memory']     = params.max_memory
-summary['Max CPUs']       = params.max_cpus
-summary['Max Time']       = params.max_time
-summary['Output dir']     = params.outdir
-summary['Working dir']    = workflow.workDir
-summary['Container Engine'] = workflow.containerEngine
-summary['Current user']   = "$USER"
-summary['Working dir']    = workflow.workDir
-summary['Output dir']     = params.outdir
-summary['Config Profile'] = workflow.profile
-
-if(params.email) summary['E-mail Address'] = params.email
-log.info summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
-log.info "========================================="
+vif_ob.headerInfo()
 
 
 /****************************************************
