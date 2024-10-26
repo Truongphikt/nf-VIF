@@ -1,4 +1,6 @@
 process HPV_COVERAGE {
+
+  container "phinguyen2000/deeptools-samtools:c413f4f"
   
   input:
   set val(prefix), file(bam) from hpvCovBam

@@ -1,5 +1,5 @@
 process MULTIQC_ALL_SAMPLES {
-    publishDir "${params.outdir}/MultiQC/", mode: 'copy'
+    container = "phinguyen2000/multiqc:48b6b9d"
 
     when:
     !params.skipMultiqc

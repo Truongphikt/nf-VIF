@@ -1,4 +1,6 @@
 process BLAT_SOFT_CLIPPED_SEQ {
+
+    container "phinguyen2000/blat:255336f"
     
     when:
     !params.skipBlat

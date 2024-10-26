@@ -1,5 +1,7 @@
 process MAKE_HPV_CONFIG {
 
+    container = "phinguyen2000/pandas:813ad74"
+
     when:
     !params.skipMultiqc
 

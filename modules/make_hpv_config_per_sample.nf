@@ -1,4 +1,7 @@
 process MAKE_HPV_CONFIG_PER_SAMPLE {        
+
+    ontainer "phinguyen2000/pandas:813ad74"
+
     when:
     !params.skipMultiqc
 

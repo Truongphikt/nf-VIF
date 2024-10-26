@@ -1,5 +1,7 @@
 process MAKE_BOWTIE2_INDEX_HPV {
     
+    container "phinguyen2000/hpv_version:9c95c92"
+
     input:
     file fasta from hpvFastaForIndex
 

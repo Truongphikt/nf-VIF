@@ -1,4 +1,6 @@
 process BLAT_SUMMARY {
+
+    container "phinguyen2000/pandas:813ad74"
     
     cpus   { check_max( 1, 'cpus' ) }
     memory { check_max( 18.GB * task.attempt, 'memory' ) }

@@ -1,5 +1,7 @@
 process EXTRACT_BREAKPOINTS_SEQUENCE {
    
+   container "phinguyen2000/pandas:813ad74"
+
    input:
    set val(prefix), file(bam) from hpvSoftBam
 

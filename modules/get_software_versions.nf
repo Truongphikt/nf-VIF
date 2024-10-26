@@ -1,5 +1,7 @@
 process GET_SOFTWARE_VERSIONS {
 
+    container = "phinguyen2000/hpv_version:9c95c92"
+
     output:
     file 'software_versions_mqc.yaml' into software_versions_yaml
 
