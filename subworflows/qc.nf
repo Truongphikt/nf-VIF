@@ -14,7 +14,8 @@ workflow QC {
     // trimgaloreResults = Channel.from(false)
     // }
 
-    // FASTQC()
+    in_fastqc = params.skipFastqc ? Channel.empty(): TRIMGALORE.out.trim_fastq // ([val(name) listpath(trimmed_fastq)])
+    FASTQC(in_fastqc)
 
     // emit:
 }
