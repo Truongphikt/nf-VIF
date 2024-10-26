@@ -219,137 +219,14 @@ else{
 vif_ob.headerInfo()
 
 
-/****************************************************
- * PRE-PROCESSING
- */
-
-if ( !params.bwt2Index && params.fasta ){
-  MAKE_BOWTIE2_INDEX() 
-}
-
-if ( (!params.bwt2IndexHpv | !params.bwt2IndexHpvSplit) && params.fastaHpv ){
-  MAKE_BOWTIE2_INDEX_HPV()
-}
-
-MAKE_BOWTIE2_INDEX_CTRL()
-
-
-
-/****************************************************
- * Main worflow
- */
-
-
 /*
- * Reads Trimming
- */
-if (!params.skipTrimming){
-   TRIMGALORE()
-}else{
-   readsTrimgalore.into{readsHpvmap; readsSplitmap; readsCtrl; readsFastqc}
-   trimgaloreResults = Channel.from(false)
-}
-
-
-/*
- * FastQC
- */
-FASTQC()
-
-/*
- * Mapping on control regions
- */
-
-CTRL_MAPPING()
-CTRL_STATS()
-
-/*
- * HPV mapping and genotyping
- */ 
-
-HPV_MAPPING()
-SELECT_GENOTYPES()
-
-
-// Filter - removes all samples for which the genotype has not been detected
-skippedNogeno = []
-def checkGenotypes(geno) {
-  def nbGeno = 0;
-  geno.eachLine { nbGeno++; }
-  samplename = geno.getBaseName() - '_HPVgenotyping.filered'
-  if(nbGeno < 1 ){
-      log.info "#################### NO HPV GENOTYPE DETECTED! IGNORING FOR FURTHER DOWNSTREAM ANALYSIS! ($samplename)"
-      skippedNogeno << samplename
-      return false
-  } else {
-      return true
-  }
-}
-
-
-selHpvGeno
-        .filter { geno -> checkGenotypes(geno) }
-    	.into { hpvGenoFilter; hpvGenoMqcConfig }
-
-/*
- * Local Mapping for selected genotypes
- */
-
-HPV_LOCAL_MAPPING()
-HPV_LOCAL_MAPPING_STATS()
-HPV_COVERAGE()
-
-
-/*
- * Breakpoint detection
- */
-
-EXTRACT_BREAKPOINTS_SEQUENCE()
-
-/*
- * Blat
- */  
-
-if (!params.skipBlat){
-   BLAT_SOFT_CLIPPED_SEQ()
-   BLAT_SUMMARY()
-}else{
-   ttd = Channel.from(false)
-}
-
-
-/*
-/* MultiQC
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT MAIN WORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-
-GET_SOFTWARE_VERSIONS()
-WORKFLOW_SUMMARY_MQC()
+include {  NF_VIF  }                from           "./workflows/nf-vif/main.nf"
 
 
-if (params.splitReport){
-
-   MAKE_HPV_CONFIG_PER_SAMPLE()
-
-   mqcHpvConf
-        .join(fastqcResults, remainder: true)
-        .join(trimgaloreResults, remainder: true)
-        .join(ctrlStats)
-	.join(hpvBowtie2Log)
-	.join(hpvGenoMqc)
-        .join(hpvCovStats.groupTuple(), remainder: true)
-        .join(hpvBwCov.groupTuple(), remainder: true)
-        .join(bkpPos.groupTuple(), remainder: true)
-        .join(hpvGenoStats, remainder: true)
-        .join(mqcGenepos, remainder: true)
-	.join(ttd.groupTuple(), remainder: true)
-	.dump(tag: "join")
-        .set{chHpvReport}
-
-  MULTIQC()
-}else{
-  MAKE_HPV_CONFIG()
-  MULTIQC_ALL_SAMPLES
-}
-
+NF_VIF()
 
