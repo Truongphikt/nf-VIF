@@ -238,7 +238,8 @@ workflow{
       hpvFastaForIndex,
       chFastaCtrl,
       readsTrimgalore,                        // ([val(prefix), listpath(fastq_file)])
-      hpv_bwt2_base
+      hpv_bwt2_base,
+      vif_ob
    )
 }
 

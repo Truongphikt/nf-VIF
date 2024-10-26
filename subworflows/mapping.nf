@@ -34,5 +34,6 @@ workflow MAPPING {
         HPV_MAPPING.out.hpv_bam                     // ([val(prefix), path(hpvs_bam)])
     )
 
-    // emit:
+    emit:
+    sel_hpv_geno = SELECT_GENOTYPES.out.sel_hpv_geno
 }

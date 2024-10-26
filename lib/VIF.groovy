@@ -118,4 +118,19 @@ HPV v${this.workflow.manifest.version}
         this.log.info this.summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
         this.log.info "========================================="
     }
+
+    public boolean checkGenotypes(geno){
+        // Filter - removes all samples for which the genotype has not been detected
+        def skippedNogeno = []
+        def nbGeno = 0;
+        geno.eachLine { nbGeno++; }
+        def samplename = geno.getBaseName() - '_HPVgenotyping.filered'
+        if(nbGeno < 1 ){
+            this.log.info "#################### NO HPV GENOTYPE DETECTED! IGNORING FOR FURTHER DOWNSTREAM ANALYSIS! ($samplename)"
+            skippedNogeno << samplename
+            return false
+        } else {
+            return true
+        }
+    }
 }
