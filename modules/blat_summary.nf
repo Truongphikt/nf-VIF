@@ -1,5 +1,8 @@
 process BLAT_SUMMARY {
-    publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
+    
+    cpus   { check_max( 1, 'cpus' ) }
+    memory { check_max( 18.GB * task.attempt, 'memory' ) }
+    time   { check_max( 12.h * task.attempt, 'time' ) }
 
     input:
     set val(pfix), val(sname), file(psl), file(csv) from blatRes.join(bkpInfo).dump(tag:"blat")

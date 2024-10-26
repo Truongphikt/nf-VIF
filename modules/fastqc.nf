@@ -1,7 +1,10 @@
 process FASTQC {
     tag "$name"
-    publishDir "${params.outdir}/fastqc", mode: 'copy',
-        saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
+    
+    cpus     { check_max( 1, 'cpus' ) }
+    memory   { check_max( 10.GB * task.attempt, 'memory' ) }
+    time     { check_max( 12.h * task.attempt, 'time' ) } 
+    errorStrategy  { task.exitStatus in [143,137] ? 'retry' : 'ignore' }
    
     when:
     !params.skipFastqc
