@@ -1,0 +1,20 @@
+process GET_SOFTWARE_VERSIONS {
+
+    output:
+    file 'software_versions_mqc.yaml' into software_versions_yaml
+
+    script:
+    """
+    echo $workflow.manifest.version > v_pipeline.txt
+    echo $workflow.nextflow.version > v_nextflow.txt
+    fastqc --version > v_fastqc.txt
+    bowtie2 --version > v_bowtie2.txt
+    samtools --version > v_samtools.txt
+    bedtools --version > v_bedtools.txt
+    deeptools --version 2> v_deeptools.txt
+    echo "BLAT v. 35" > v_blat.txt
+    python --version 2> v_python.txt
+    multiqc --version > v_multiqc.txt
+    scrape_software_versions.py > software_versions_mqc.yaml
+    """
+}

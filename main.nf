@@ -315,77 +315,14 @@ log.info "========================================="
  */
 
 if ( !params.bwt2Index && params.fasta ){
-
-  process makeBowtie2Index {
-     tag "$refBwt2Base"
-     publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
-              saveAs: { params.saveReference ? it : null }, mode: 'copy'
-       
-     input:
-     file fasta from referenceFastaForIndex
-
-     output:
-     file "bowtie2Index" into bwt2IndexEnd2end
-     file "bowtie2Index" into bwt2IndexTrim
-
-     script:
-     refBwt2Base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
-     """
-     mkdir bowtie2Index
-     bowtie2-build ${fasta} bowtie2Index/${refBwt2Base}
-     """
-  }   
+  MAKE_BOWTIE2_INDEX() 
 }
 
 if ( (!params.bwt2IndexHpv | !params.bwt2IndexHpvSplit) && params.fastaHpv ){
-
-process makeBowtie2IndexHPV {
-     publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
-              saveAs: { params.saveReference ? it : null }, mode: 'copy'
-   
-     input:
-     file fasta from hpvFastaForIndex
-
-     output:
-     file "bowtie2IndexHpv" into bwt2IndexHpv
-     file "bowtie2IndexHpvSplit" into bwt2IndexHpvSplit
-
-     script:
-     hpvBwt2Base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
-     """
-     mkdir bowtie2IndexHpv
-     bowtie2-build ${fasta} bowtie2IndexHpv/${hpvBwt2Base}
-   
-     mkdir fastaSplit && cd fastaSplit
-     cat ../$fasta | awk '{ if (substr(\$0, 1, 1)==">") {filename=(substr(\$0,2) ".fa")} print \$0 > filename }'
-     cd .. && ls fastaSplit/* > listoffasta.txt
-   
-     mkdir bowtie2IndexHpvSplit
-     while read ff; do
-       base="\$(basename \"\${ff}\" | sed -e 's/.fa//')"
-       bowtie2-build "\${ff}" bowtie2IndexHpvSplit/"\${base}"
-     done < listoffasta.txt
-     """
-}
+  MAKE_BOWTIE2_INDEX_HPV()
 }
 
-
-process makeBowtie2IndexCtrl {
-  publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
-            saveAs: { params.saveReference ? it : null }, mode: 'copy'
-
-  input:
-  file fasta from chFastaCtrl
-
-  output:
-  file "bowtie2IndexCtrl" into bwt2IndexCtrl
-
-  script:
-  """
-  mkdir bowtie2IndexCtrl
-  bowtie2-build ${fasta} bowtie2IndexCtrl/ctrlRegions
-  """
-}
+MAKE_BOWTIE2_INDEX_CTRL()
 
 
 
@@ -398,37 +335,7 @@ process makeBowtie2IndexCtrl {
  * Reads Trimming
  */
 if (!params.skipTrimming){
-   process trimGalore {
-     tag "$name" 
-
-     publishDir "${params.outdir}/trimming", mode: 'copy',
-                 saveAs: {filename -> filename.indexOf(".log") > 0 ? "logs/$filename" : "$filename"}
-
-     input:
-     set val(name), file(reads) from readsTrimgalore
-
-     output:
-     set val(name), file("*fq.gz") into readsHpvmap, readsSplitmap, readsCtrl, readsFastqc
-     set val(prefix), file("*trimming_report.txt") into trimgaloreResults
-
-     script:
-     prefix = reads[0].toString() - ~/(_1)?(_2)?(_R1)?(_R2)?(.R1)?(.R2)?(_val_1)?(_val_2)?(\.fq)?(\.fastq)?(\.gz)?$/
-     if (params.singleEnd) {
-     """
-     trim_galore --trim-n --quality 20 --length 20\
-                --gzip $reads --basename ${prefix} --cores ${task.cpus}
-     """
-     }else {
-     """
-     trim_galore --trim-n --quality 20  --length 20 \
-                --paired --gzip $reads --basename ${prefix} --cores ${task.cpus}
-     mv ${prefix}_R1_val_1.fq.gz ${prefix}_R1_trimmed.fq.gz
-     mv ${prefix}_R2_val_2.fq.gz ${prefix}_R2_trimmed.fq.gz
-     mv ${reads[0]}_trimming_report.txt ${prefix}_R1_trimming_report.txt
-     mv ${reads[1]}_trimming_report.txt ${prefix}_R2_trimming_report.txt
-     """
-     }
-   }
+   TRIMGALORE()
 }else{
    readsTrimgalore.into{readsHpvmap; readsSplitmap; readsCtrl; readsFastqc}
    trimgaloreResults = Channel.from(false)
@@ -438,154 +345,21 @@ if (!params.skipTrimming){
 /*
  * FastQC
  */
-process fastqc {
-    tag "$name"
-    publishDir "${params.outdir}/fastqc", mode: 'copy',
-        saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
-   
-    when:
-    !params.skipFastqc
-
-    input:
-    set val(name), file(reads) from readsFastqc
-
-    output:
-    set val(prefix), file("${prefix}*.{zip,html}") into fastqcResults
-
-    script:
-    prefix = reads[0].toString() - ~/(_1)?(_2)?(_R1)?(_R2)?(.R1)?(.R2)?(_val_1)?(_val_2)?(_trimmed)?(\.fq)?(\.fastq)?(\.gz)?$/
-    """
-    fastqc -q $reads
-    """
-}
+FASTQC()
 
 /*
  * Mapping on control regions
  */
 
-process ctrlMapping {
-  tag "$prefix"
-  publishDir "${params.outdir}/ctrlMapping/", mode: 'copy',
-      saveAs: {filename ->
-          if (filename.endsWith(".log")) "logs/$filename"
-          else if (params.saveAlignedIntermediates) filename
-	  else null}
-
-  input:
-  set val(prefix), file(reads) from readsCtrl
-  file index from  bwt2IndexCtrl.collect()
-
-  output:
-  set val(prefix), file("${prefix}_ctrl.bam") into ctrlBam
-  set val(prefix), file("*ctrl_bowtie2.log") into ctrlBowtie2Log
-
-  script:
-  if ( params.singleEnd ){
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --very-sensitive \\
-          -p ${task.cpus} \\
-          -x ${index}/ctrlRegions \\
-          -U ${reads} > ${prefix}_ctrl.bam 2> ${prefix}_ctrl_bowtie2.log
-  """
-  }else{
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --very-sensitive \\
-          -p ${task.cpus} \\
-          -x ${index}/ctrlRegions \\
-          -1 ${reads[0]} -2 ${reads[1]} > ${prefix}_ctrl.bam 2> ${prefix}_ctrl_bowtie2.log
-  """
-  }
-}
-
-process ctrlStats {
-  tag "$prefix"
-  publishDir "${params.outdir}/ctrlMapping/", mode: 'copy'
-
-  input:
-  set val(prefix), file(bam) from ctrlBam
-
-  output:
-  set val(prefix), file('*fsorted_ctrl.{bam,bam.bai}') into ctrlFiltBams
-  set val(prefix), file("*ctrl.stats") into ctrlStats
-
-  script:
-  peStatus = params.singleEnd ? "0" : "1"
-  """
-  nbreads=\$(samtools view -c ${bam})
-  samtools view -h -q 20 ${bam} | samtools sort -@  ${task.cpus} - > ${prefix}_fsorted_ctrl.bam
-  samtools index ${prefix}_fsorted_ctrl.bam
-  samtools idxstats ${prefix}_fsorted_ctrl.bam | cut -f1,3 | sort -k2,2nr > ${prefix}_ctrl.stats
-  awk -v isPe=${peStatus} -v tot=\$nbreads '\$1!="*"{s=s+\$2} \$1=="*"{\$1="unmapped"; \$2=tot-s} isPe==1{\$2=\$2/2} {printf "%s\\t%.0f\\n",\$1,\$2}' ${prefix}_ctrl.stats > ${prefix}_ctrl_final.stats
-  mv ${prefix}_ctrl_final.stats ${prefix}_ctrl.stats
-  """
-}
-
+CTRL_MAPPING()
+CTRL_STATS()
 
 /*
  * HPV mapping and genotyping
  */ 
 
-process HPVmapping {
-  tag "$prefix"
-  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy',
-        saveAs: {filename ->
-            if (filename.endsWith(".log")) "logs/$filename"
-            else if (params.saveAlignedIntermediates) filename
-	    else null}
-
-  input:
-  set val(prefix), file(reads) from readsHpvmap
-  file index from bwt2IndexHpv.collect()
-
-  output:
-  set val(prefix), file("${prefix}_hpvs.bam") into hpvBam
-  set val(prefix), file("*bowtie2.log") into hpvBowtie2Log
-
-  script:
-  if ( params.singleEnd ){
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --very-sensitive --no-unal \\
-          -p ${task.cpus} \\
-          -x ${index}/${hpvBwt2Base} \\
-          -U ${reads} > ${prefix}_hpvs.bam 2> ${prefix}_hpvs_bowtie2.log
-  """
-  }else{
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --very-sensitive --no-unal \\
-          -p ${task.cpus} \\
-          -x ${index}/${hpvBwt2Base} \\
-          -1 ${reads[0]} -2 ${reads[1]} > ${prefix}_hpvs.bam 2> ${prefix}_hpvs_bowtie2.log 
-  """
-  }
-}
-
-process selectGenotypes{
-  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy'
-
-  input:
-  set val(prefix), file(bam) from hpvBam 
-
-  output:
-  set val(prefix), file("${prefix}_HPVgenotyping.stats") into hpvGenoStats
-  set val(prefix), file("${prefix}_HPVgenotyping.filtered") into hpvGenoMqc
-  file("${prefix}_HPVgenotyping.filtered") into selHpvGeno
-  set val(prefix), file('*fsorted_hpvs.{bam,bam.bai}') into hpvsFiltBams
-
-  script:
-  """
-  samtools view -h -q ${params.minMapq} ${bam} | samtools sort -@  ${task.cpus} -o ${prefix}_fsorted_hpvs.bam -
-  samtools index ${prefix}_fsorted_hpvs.bam
-  samtools idxstats ${prefix}_fsorted_hpvs.bam | cut -f1,3 | sort -k2,2nr > ${prefix}_HPVgenotyping.counts
-  nbreads=\$(samtools view -c ${bam})
-  awk -v tot=\$nbreads '{printf("%s\\t%.02f\\n", \$1, \$2/tot)}' ${prefix}_HPVgenotyping.counts > ${prefix}_HPVgenotyping.freq
-  awk -v minFreq=${params.minFreqGeno} -v sname=${prefix} '\$2>=minFreq{print sname","\$1}' ${prefix}_HPVgenotyping.freq > ${prefix}_HPVgenotyping.filtered
-  awk '\$2>=10{print}\$2<10{others+=\$2}END{print "Others\t"others}' ${prefix}_HPVgenotyping.counts | grep -v "*" > ${prefix}_HPVgenotyping.stats
-  """
-}
+HPV_MAPPING()
+SELECT_GENOTYPES()
 
 
 // Filter - removes all samples for which the genotype has not been detected
@@ -612,159 +386,24 @@ selHpvGeno
  * Local Mapping for selected genotypes
  */
 
-process HPVlocalMapping {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy',
-      saveAs: {filename ->
-          if (filename.endsWith(".log")) "logs/$filename"
-	  else if (params.saveAlignedIntermediates) filename
-          else null}
-
-  input:
-  file index from bwt2IndexHpvSplit.first()
-  set val(prefix), val(hpv), file(reads) from hpvGenoFilter
-    .splitCsv(header: ["sample", "hpv"])
-    .map{
-      [ it["sample"], it["hpv"] ]
-    }
-    .combine(readsSplitmap, by: 0)
-    .dump(tag: "hpvloc")
-
-  output:
-  set val(prefix), file("*.bam") into hpvLocalBam, hpvCovBam, hpvSoftBam
-
-  script: 
-  if ( params.singleEnd ){
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --local --very-sensitive-local --no-unal \\
-          -p ${task.cpus} \\
-          -x ${index}/${hpv} \\
-          -U ${reads} > ${prefix}-${hpv}.bam 2> ${prefix}-${hpv}_bowtie2.log
-  """
-  }else{
-  """
-  bowtie2 --rg-id BMG --rg SM:${prefix} \\
-          --local --very-sensitive-local --no-unal \\
-          -p ${task.cpus} \\
-          -x ${index}/${hpv} \\
-          -1 ${reads[0]} -2 ${reads[1]} > ${prefix}-${hpv}.bam 2> ${prefix}-${hpv}_bowtie2.log
-  """
-  }
-}
-
-
-process HPVlocalMappingStats {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy'
-  
-  input:
-  set val(prefix), file(bam) from hpvLocalBam
-
-  output:
-  set val(prefix), file("*_coverage.stats") into hpvCovStats
-
-  script:
-  pfix= bam.toString() - ~/(.bam)?$/
-  """
-  genomeCoverageBed -d -ibam ${bam} > ${pfix}_coverage.out
-  nbaln=\$(samtools flagstat ${bam} | grep 'mapped (' | awk '{print \$1}')
-  echo -e "ID,sample,HPVsubtype,mappedReads,minCov,maxCov,meanCov" > ${pfix}_coverage.stats
-  awk -v id=${prefix} -v nbaln=\$nbaln 'NR==1{hpv=\$1;mn=mx=\$3}{total+=\$3}(\$3>mx){mx=\$3}(\$3<mn){mn=\$3} END{OFS=","; print id"_"hpv,id,hpv,nbaln,mn,mx,total/NR}' ${pfix}_coverage.out >> ${pfix}_coverage.stats
-  """
-}
-
-
-process HPVcoverage {
-  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy'
-
-  input:
-  set val(prefix), file(bam) from hpvCovBam
-
-  output:
-  set val(prefix), file("*covmatrix.mqc") into hpvBwCov
-  set val(prefix), file('*sorted.{bam,bam.bai}') into hpvSortedBams
-
-  script:
-  pfix= bam.toString() - ~/(_sorted)?(.bam)?$/
-  normOpts = params.splitReport ? "" : "--normalizeUsing CPM"
-  """
-  samtools sort -@ ${task.cpus} -o ${pfix}_sorted.bam ${bam}
-  samtools index ${pfix}_sorted.bam
-  bamCoverage -b ${pfix}_sorted.bam --binSize 50 ${normOpts} --outFileFormat bedgraph -o ${pfix}.bedgraph
-  awk -F"\t" '{OFS="\t"; print \$2+25,\$4}' ${pfix}.bedgraph > ${pfix}_covmatrix.mqc
-  """
-}
+HPV_LOCAL_MAPPING()
+HPV_LOCAL_MAPPING_STATS()
+HPV_COVERAGE()
 
 
 /*
  * Breakpoint detection
  */
 
-process extractBreakpointsSequence {
-   publishDir "${params.outdir}/hpvMapping/softclipped", mode: 'copy',
-               saveAs: {filename -> 
-                   if (filename.indexOf(".mqc") > 0) "mqc/$filename"
-		   else filename}
-
-   input:
-   set val(prefix), file(bam) from hpvSoftBam
-
-   output:
-   set val(prefix), file("*.mqc") into bkpPos mode 'flatten'
-   set val(pfix), file("*.csv") into bkpInfo
-   set val(pfix), val(prefix), file("*.fa") into clippedSeq
-
-   script:
-   pfix= bam.toString() - ~/.bam$/
-   """
-   extractSoftclipped.py -v --mqc --stranded --minLen ${params.minLen} ${bam}
-   sort -k1,1n ${pfix}_3prime_bkp.mqc | awk 'BEGIN{nr=1} nr<\$1{for (i=nr;i<\$1;i++){print i"\t"0} nr=\$1}{print; nr+=1}' > file1.tmp
-   mv file1.tmp ${pfix}_3prime_bkp.mqc
-   sort -k1,1n ${pfix}_5prime_bkp.mqc | awk 'BEGIN{nr=1} nr<\$1{for (i=nr;i<\$1;i++){print i"\t"0} nr=\$1}{print; nr+=1}' > file2.tmp
-   mv file2.tmp ${pfix}_5prime_bkp.mqc
-   """
-}
+EXTRACT_BREAKPOINTS_SEQUENCE()
 
 /*
  * Blat
  */  
 
 if (!params.skipBlat){
-   process blatSoftClippedSeq {
-      publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
-
-      when:
-      !params.skipBlat
-
-      input:
-      file(blatdb) from blatDatabase.collect()
-      set val(pfix), val(sname), file(fasta) from clippedSeq
- 
-      output:
-      set val(pfix), val(sname), file("*.tsv") into blatRes
-
-      script:
-      """
-      blat ${blatdb} ${fasta} ${pfix}.tsv -noHead -minScore=25 -minIdentity=90
-      """
-   }
-   
-   process blatSummary {
-      publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
-
-      input:
-      set val(pfix), val(sname), file(psl), file(csv) from blatRes.join(bkpInfo).dump(tag:"blat")
- 
-      output:
-      set val(sname), file("*_table_filtered.csv") into ttdHQ
-      set val(sname), file("*_table.csv") into tableHQ
-      set val(sname), file("*_bkptable_filtered.csv") into ttd
-      set val(sname), file("*_bkptable.csv") into table
-
-      script:
-      """
-      blatParser.py -f ${psl} -b ${csv} --sname ${sname}
-      """
-   }
+   BLAT_SOFT_CLIPPED_SEQ()
+   BLAT_SUMMARY()
 }else{
    ttd = Channel.from(false)
 }
@@ -775,71 +414,13 @@ if (!params.skipBlat){
 */
 
 
-process get_software_versions {
+GET_SOFTWARE_VERSIONS()
+WORKFLOW_SUMMARY_MQC()
 
-    output:
-    file 'software_versions_mqc.yaml' into software_versions_yaml
-
-    script:
-    """
-    echo $workflow.manifest.version > v_pipeline.txt
-    echo $workflow.nextflow.version > v_nextflow.txt
-    fastqc --version > v_fastqc.txt
-    bowtie2 --version > v_bowtie2.txt
-    samtools --version > v_samtools.txt
-    bedtools --version > v_bedtools.txt
-    deeptools --version 2> v_deeptools.txt
-    echo "BLAT v. 35" > v_blat.txt
-    python --version 2> v_python.txt
-    multiqc --version > v_multiqc.txt
-    scrape_software_versions.py > software_versions_mqc.yaml
-    """
-}
-
-process workflow_summary_mqc {
-  when:
-  !params.skipMultiqc
-
-  output:
-  file 'workflow_summary_mqc.yaml' into workflow_summary_yaml
-
-  exec:
-  def yaml_file = task.workDir.resolve('workflow_summary_mqc.yaml')
-  yaml_file.text  = """
-  id: 'summary'
-  description: " - this information is collected when the pipeline is started."
-  section_name: 'Workflow Summary'
-  section_href: 'https://gitlab.curie.fr/illumina-hpv'
-  plot_type: 'html'
-  data: |
-      <dl class=\"dl-horizontal\">
-${summary.collect { k,v -> "            <dt>$k</dt><dd><samp>${v ?: '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }.join("\n")}
-      </dl>
-  """.stripIndent()
-}
 
 if (params.splitReport){
 
-   process makeHpvConfigPerSample {        
-      when:
-      !params.skipMultiqc
-
-      input:
-      file(geno) from hpvGenoMqcConfig
-      file genes from chHpvGenesCoord.collect()
-
-      output:
-      set val(prefix),file('*conf.mqc') into mqcHpvConf
-      set val(prefix),file('*bkp.mqc') optional true into mqcGenepos
-
-      script:
-      prefix = geno.toString() - "_HPVgenotyping.filtered"
-      """
-      awk -F, '{print \$2}' ${geno} | sort -u > allgenotypes_unique.txt
-      scrape_mqc_config.py  allgenotypes_unique.txt > ${prefix}_hpv_conf.mqc
-      gene_tracks.sh allgenotypes_unique.txt ${genes} ${prefix} 
-      """
-   }
+   MAKE_HPV_CONFIG_PER_SAMPLE()
 
    mqcHpvConf
         .join(fastqcResults, remainder: true)
@@ -856,101 +437,10 @@ if (params.splitReport){
 	.dump(tag: "join")
         .set{chHpvReport}
 
-   process multiqc {
-     publishDir "${params.outdir}/MultiQC/", mode: 'copy'
-
-     when:
-     !params.skipMultiqc
-
-     input:
-     file splan from chSplan.first()
-     file multiqcConfig from chMultiqcConfig.first()
-     set val(prefix), file('mqc/hpv_config.mqc'), file('fastqc/*'), file('trimming/*'), file('ctrl/*'), 
-     file('hpv/*'), file('hpv/*'), file('hpv/*'), file('hpv/*'), file('hpv/*'), file('hpv/*'), file('hpv/*'), file('hpv/*') from chHpvReport.dump(tag: "mqc") 
-     file ('software_versions/*') from software_versions_yaml.collect()
-     file ('workflow_summary/*') from workflow_summary_yaml.collect()
-
-     output:
-     file splan
-     file "*.html" into multiqc_report
-     file "*_data"
-
-     script:
-     rtitle = customRunName ? "--title \"$customRunName\"" : ''
-     rfilename = customRunName ? "--filename " + customRunName.replaceAll('\\W','_').replaceAll('_+','_') + "_" + prefix + "_multiqc_report" : ''
-     metadataOpts = params.metadata ? "--metadata ${metadata}" : ""
-     splanOpts = params.samplePlan ? "--splan ${params.samplePlan}" : ""
-     """
-     awk -F"," -v sname=${prefix} '\$1==sname{print}' ${splan} > splan_${prefix}.csv
-     stats2multiqc.sh splan_${prefix}.csv	
-     mqc_header.py --name "${prefix} - nf-VIF" --version ${workflow.manifest.version} ${metadataOpts} ${splanOpts} > multiqc-config-header.yaml
-     multiqc . -f $rtitle -n ${prefix}_nfvif_report.html -c $multiqcConfig -c 'mqc/hpv_config.mqc' -c multiqc-config-header.yaml -m fastqc -m custom_content
-     """
-   }
+  MULTIQC()
 }else{
-   process makeHpvConfig {
-
-      when:
-      !params.skipMultiqc
-
-      input:
-      file(geno) from hpvGenoMqcConfig.collect()
-      file genes from chHpvGenesCoord.collect()
-
-      output:
-      file('*conf.mqc') into mqcHpvConf
-      file('*bkp.mqc') into mqcGenepos
-
-      script:
-      prefix = geno.toString() - "_HPVgenotyping.filtered"
-      """
-      awk -F, '{print \$2}' ${geno} | sort -u > allgenotypes_unique.txt
-      scrape_mqc_config.py  allgenotypes_unique.txt > hpv_conf.mqc
-      gene_tracks.sh allgenotypes_unique.txt ${genes} 'genes' 
-      """
-   }
-
-   process multiqcAllsamples {
-     publishDir "${params.outdir}/MultiQC/", mode: 'copy'
-
-     when:
-     !params.skipMultiqc
-
-     input:
-     file splan from chSplan.first()
-     file multiqcConfig from chMultiqcConfig.first()
-     file hpvConfig from mqcHpvConf.collect().ifEmpty([])
-     file('fastqc/*') from fastqcResults.map{items->items[1]}.collect().ifEmpty([])
-     file('trimming/*') from trimgaloreResults.map{items->items[1]}.collect().ifEmpty([])
-     file ('hpv/*') from hpvGenoStats.map{items->items[1]}.collect()
-     file ('hpv/*') from hpvGenoMqc.map{items->items[1]}.collect()
-     file ('hpv/*') from hpvCovStats.map{items->items[1]}.collect()
-     file ('hpv/*') from hpvBwCov.map{items->items[1]}.collect()
-     file ('hpv/*') from bkpPos.map{items->items[1]}.collect()
-     file ('hpv/*') from mqcGenepos.map{items->items[1]}.collect()
-     file ('hpv/*') from ttd.map{items->items[1]}.collect().ifEmpty([])
-     file ('hpv/*') from hpvBowtie2Log.map{items->items[1]}.collect().ifEmpty([])
-     file ('ctrl/*') from ctrlStats.map{items->items[1]}.collect()
-  
-     file ('software_versions/*') from software_versions_yaml.collect()
-     file ('workflow_summary/*') from workflow_summary_yaml.collect()
- 
-     output:
-     file splan
-     file "*multiqc_report.html" into multiqcReport
-     file "*_data"
-
-     script:
-     rtitle = customRunName ? "--title \"$customRunName\"" : ''
-     rfilename = customRunName ? "--filename " + customRunName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
-     metadataOpts = params.metadata ? "--metadata ${metadata}" : ""
-     splanOpts = params.samplePlan ? "--splan ${params.samplePlan}" : ""
-     """	
-     stats2multiqc.sh ${splan}
-     mqc_header.py --name "nf-VIF" --version ${workflow.manifest.version} ${metadataOpts} ${splanOpts} > multiqc-config-header.yaml         
-     multiqc . -f $rtitle $rfilename -c $multiqcConfig -c $hpvConfig -c multiqc-config-header.yaml -m fastqc -m custom_content
-     """
-   }
+  MAKE_HPV_CONFIG()
+  MULTIQC_ALL_SAMPLES
 }
 
 
