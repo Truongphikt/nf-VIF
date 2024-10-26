@@ -26,6 +26,8 @@ This script is based on the nf-core guidelines. See https://nf-co.re/ for more i
  * SET UP CONFIGURATION VARIABLES
  */
 
+nextflow.enable.dsl = 2
+
 vif_ob = VIF(workflow, log, params, "$USER")
 
 // Show help emssage
