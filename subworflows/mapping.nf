@@ -1,7 +1,7 @@
 include {  CTRL_MAPPING      }              from            "../modules/ctrl_mapping.nf"
 include {  CTRL_STATS        }              from            "../modules/ctrl_stats.nf"
 include {  HPV_MAPPING       }              from            "../modules/hpv_mapping.nf"
-// include {  SELECT_GENOTYPES  }              from            "../modules/select_genotypes.nf"
+include {  SELECT_GENOTYPES  }              from            "../modules/select_genotypes.nf"
 
 workflow MAPPING {
     take:
@@ -16,10 +16,10 @@ workflow MAPPING {
     */
 
     CTRL_MAPPING(
-        trim_fastq.combine(bwt2_index_ctrl)       // ([val(name), listpath(trimmed_fastq), path(bwt2_index_ctrl_folder)])
+        trim_fastq.combine(bwt2_index_ctrl)        // ([val(prefix), listpath(trimmed_fastq), path(bwt2_index_ctrl_folder)])
     )
     CTRL_STATS(
-        CTRL_MAPPING.out.ctrl_bam                 // ([val(name), path(ctrl_bam)])
+        CTRL_MAPPING.out.ctrl_bam                  // ([val(prefix), path(ctrl_bam)])
     )
 
     /*
@@ -27,10 +27,12 @@ workflow MAPPING {
     */ 
 
     HPV_MAPPING(
-        trim_fastq.combine(bwt2_index_hpv)          // ([val(name), listpath(trimmed_fastq), path(bwt2_index_hpv)])
-                  .combine(hpv_bwt2_base)           // ([val(name), listpath(trimmed_fastq), path(bwt2_index_hpv), val(hpv_bwt2_base)])
+        trim_fastq.combine(bwt2_index_hpv)          // ([val(prefix), listpath(trimmed_fastq), path(bwt2_index_hpv)])
+                  .combine(hpv_bwt2_base)           // ([val(prefix), listpath(trimmed_fastq), path(bwt2_index_hpv), val(hpv_bwt2_base)])
     )
-    // SELECT_GENOTYPES()
+    SELECT_GENOTYPES(
+        HPV_MAPPING.out.hpv_bam                     // ([val(prefix), path(hpvs_bam)])
+    )
 
     // emit:
 }

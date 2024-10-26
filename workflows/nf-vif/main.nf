@@ -12,7 +12,7 @@ workflow NF_VIF{
     referenceFastaForIndex
     hpvFastaForIndex
     chFastaCtrl
-    readsTrimgalore                        // ([val(name), listpath(fastq_file)])
+    readsTrimgalore                        // ([val(prefix), listpath(fastq_file)])
     hpv_bwt2_base
 
 
@@ -41,7 +41,7 @@ workflow NF_VIF{
     */
 
     MAPPING(
-        QC.out.trim_fastq,                          // ([val(name), listpath(trimmed_fastq)])
+        QC.out.trim_fastq,                          // ([val(prefix), listpath(trimmed_fastq)])
         PREPROCESSING.out.bwt2_index_ctrl,          // ([path(bwt2_index_ctrl_folder)])
         PREPROCESSING.out.bwt2_index_hpv,           // ([path(bwt2_index)])
         hpv_bwt2_base
