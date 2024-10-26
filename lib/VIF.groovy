@@ -103,17 +103,19 @@ class VIF {
         summary['Working dir']    = this.workflow.workDir
         summary['Output dir']     = this.params.outdir
         summary['Config Profile'] = this.workflow.profile
-        if(this.params.email) summary['E-mail Address'] = this.params.email
+        if(this.params.email) {
+            summary['E-mail Address'] = this.params.email
+        }
     }
 
     public void headerInfo(){
         this.log.info """=======================================================
 
-        HPV v${this.workflow.manifest.version}"
-        ======================================================="""
+HPV v${this.workflow.manifest.version}
+======================================================="""
 
         
-        this.log.info this.summary().collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
+        this.log.info this.summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
         this.log.info "========================================="
     }
 }
