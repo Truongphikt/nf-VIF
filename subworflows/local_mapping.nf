@@ -23,6 +23,7 @@ workflow LOCAL_MAPPING {
         HPV_LOCAL_MAPPING.out                   // (val(prefix), val(hpv), path(local_bam))
     )
 
-    // emit:
+    emit:
+    hpv_soft_bam = HPV_LOCAL_MAPPING.out        // (val(prefix), val(hpv), path(local_bam))
 
 }

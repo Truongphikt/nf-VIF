@@ -2,7 +2,7 @@ include {  PREPROCESSING                 }               from        "../../subw
 include {  QC                            }               from        "../../subworflows/qc.nf"
 include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
 include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
-// include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
+include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
 // include {  BLAT                          }               from        "../../subworflows/blat.nf"
 // include {  MULTIQC_PROCESSING            }               from        "../../subworflows/multiqc_processing.nf"
 
@@ -62,11 +62,14 @@ workflow NF_VIF{
         PREPROCESSING.out.bwt2_index_hpv_split      // ([path(bwt2_index_split)])
     )
 
-    // /*
-    // * Breakpoint detection
-    // */
-
-    // EXTRACT_BREAKPOINTS_SEQUENCE()
+    /*
+    * Breakpoint detection
+    */
+    source_code = Channel.fromPath("$projectDir/src")
+    EXTRACT_BREAKPOINTS_SEQUENCE(
+        LOCAL_MAPPING.out.hpv_soft_bam              // [(val(prefix), val(hpv), path(local_bam))]
+                     .combine(source_code)          // [(val(prefix), val(hpv), path(local_bam), path(source_code))]
+    )
 
     // /*
     // * Blat
