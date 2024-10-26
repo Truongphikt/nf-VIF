@@ -8,12 +8,12 @@ workflow PREPROCESSING{
     bwt2RefIndex
     referenceFastaForIndex
     hpvFastaForIndex
+    chFastaCtrl
 
     main:
     MAKE_BOWTIE2_INDEX(referenceFastaForIndex)
     MAKE_BOWTIE2_INDEX_HPV(hpvFastaForIndex)
-
-    // MAKE_BOWTIE2_INDEX_CTRL()
+    MAKE_BOWTIE2_INDEX_CTRL(chFastaCtrl)
 
     // emit:
 

@@ -11,6 +11,7 @@ workflow NF_VIF{
     bwt2RefIndex
     referenceFastaForIndex
     hpvFastaForIndex
+    chFastaCtrl
 
 
     main:
@@ -21,7 +22,8 @@ workflow NF_VIF{
     PREPROCESSING(
         bwt2RefIndex,
         referenceFastaForIndex,
-        hpvFastaForIndex
+        hpvFastaForIndex,
+        chFastaCtrl
     )
 
     /**************************** Main worflow ******************************

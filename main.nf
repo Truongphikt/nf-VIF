@@ -235,7 +235,8 @@ workflow{
    NF_VIF(
       bwt2RefIndex,
       referenceFastaForIndex,
-      hpvFastaForIndex
+      hpvFastaForIndex,
+      chFastaCtrl
    )
 }
 
