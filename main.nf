@@ -192,7 +192,7 @@ if ( params.bwt2IndexHpv && params.bwt2IndexHpvSplit ){
 
    lastPath = params.bwt2IndexHpv.lastIndexOf(File.separator)
    hpvBwt2Dir =  params.bwt2IndexHpv.substring(0,lastPath+1)
-   hpvBwt2Base = params.bwt2IndexHpv.substring(lastPath+1)
+   hpv_bwt2_base = Channel.of(params.bwt2IndexHpv.substring(lastPath+1))
 
    Channel.fromPath( hpvBwt2Dir , checkIfExists: true)
       .ifEmpty { exit 1, "HPV index: Provided index not found: ${params.bwt2IndexHpv}" }
@@ -209,7 +209,7 @@ if ( params.bwt2IndexHpv && params.bwt2IndexHpvSplit ){
 }
 else if ( params.fastaHpv ){
    lastPath = params.fastaHpv.lastIndexOf(File.separator)
-   hpvBwt2Base = params.fastaHpv.substring(lastPath+1) - ~/(\.fa)?(\.fasta)?(\.fas)?$/
+   hpv_bwt2_base = Channel.of(params.fastaHpv.substring(lastPath+1) - ~/(\.fa)?(\.fasta)?(\.fas)?$/)
 
    Channel.fromPath( params.fastaHpv )
         .ifEmpty { exit 1, "HPV index: Fasta file not found: ${params.fastaHpv}" }
@@ -237,7 +237,8 @@ workflow{
       referenceFastaForIndex,
       hpvFastaForIndex,
       chFastaCtrl,
-      readsTrimgalore                        // ([val(name), listpath(fastq_file)])
+      readsTrimgalore,                        // ([val(name), listpath(fastq_file)])
+      hpv_bwt2_base
    )
 }
 

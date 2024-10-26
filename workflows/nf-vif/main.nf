@@ -13,6 +13,7 @@ workflow NF_VIF{
     hpvFastaForIndex
     chFastaCtrl
     readsTrimgalore                        // ([val(name), listpath(fastq_file)])
+    hpv_bwt2_base
 
 
     main:
@@ -41,7 +42,9 @@ workflow NF_VIF{
 
     MAPPING(
         QC.out.trim_fastq,                          // ([val(name), listpath(trimmed_fastq)])
-        PREPROCESSING.out.bwt2_index_ctrl           // ([path(bwt2_index_ctrl_folder)])
+        PREPROCESSING.out.bwt2_index_ctrl,          // ([path(bwt2_index_ctrl_folder)])
+        PREPROCESSING.out.bwt2_index_hpv,           // ([path(bwt2_index)])
+        hpv_bwt2_base
     )
 
     // // Filter - removes all samples for which the genotype has not been detected
