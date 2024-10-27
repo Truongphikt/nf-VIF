@@ -3,7 +3,7 @@ process EXTRACT_BREAKPOINTS_SEQUENCE {
    container "phinguyen2000/pandas:b4381b3"
 
    input:
-   tuple val(prefix), val(hpv), path(local_bam), path(source_code)
+   tuple val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code)
    // set val(prefix), file(bam) from hpvSoftBam
 
    output:
@@ -18,7 +18,7 @@ process EXTRACT_BREAKPOINTS_SEQUENCE {
    script:
    pfix= local_bam.toString() - ~/.bam$/
    """
-   python $source_code/extractSoftclipped.py -v --mqc --stranded --minLen ${params.minLen} ${local_bam}
+   python $extract_softclipped_code -v --mqc --stranded --minLen ${params.minLen} ${local_bam}
    sort -k1,1n ${pfix}_3prime_bkp.mqc | awk 'BEGIN{nr=1} nr<\$1{for (i=nr;i<\$1;i++){print i"\t"0} nr=\$1}{print; nr+=1}' > file1.tmp
    mv file1.tmp ${pfix}_3prime_bkp.mqc
    sort -k1,1n ${pfix}_5prime_bkp.mqc | awk 'BEGIN{nr=1} nr<\$1{for (i=nr;i<\$1;i++){print i"\t"0} nr=\$1}{print; nr+=1}' > file2.tmp

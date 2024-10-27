@@ -65,10 +65,10 @@ workflow NF_VIF{
     /*
     * Breakpoint detection
     */
-    source_code = Channel.fromPath("$projectDir/src")
+    extract_softclipped_code = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/extractSoftclipped.py")
     EXTRACT_BREAKPOINTS_SEQUENCE(
         LOCAL_MAPPING.out.hpv_soft_bam              // [(val(prefix), val(hpv), path(local_bam))]
-                     .combine(source_code)          // [(val(prefix), val(hpv), path(local_bam), path(source_code))]
+                     .combine(extract_softclipped_code)          // [(val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code))]
     )
 
     // /*
