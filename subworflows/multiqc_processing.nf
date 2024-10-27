@@ -79,7 +79,27 @@ workflow MULTIQC_PROCESSING {
                              .combine(gene_tracks_script)
     )
     qc_all_sample_ch = chSplan.combine(chMultiqcConfig)
-    // MULTIQC_ALL_SAMPLES()
+    MULTIQC_ALL_SAMPLES(
+        chSplan.first().combine(chMultiqcConfig.first().map{[it]})
+                       .combine(MAKE_HPV_CONFIG_PER_SAMPLE.out.mqc_hpv_conf.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
+                       .combine(fastqc_results.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
+                       .combine(trimming_report.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
+                       .combine(hpv_geno_stats.map{items->items[1]}.collect().map{[it]})
+                       .combine(hpv_geno_mqc.map{items->items[1]}.collect().map{[it]})
+                       .combine(hpv_cov_stats.map{items->items[1]}.collect().map{[it]})
+                       .combine(hpv_bw_cov.map{items->items[1]}.collect().map{[it]})
+                       .combine(bkp_pos.map{items->items[1]}.collect().map{[it]})
+                       .combine(MAKE_HPV_CONFIG_PER_SAMPLE.out.mqc_genepos.map{items->items[1]}.collect().map{[it]})
+                       .combine(ttd.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
+                       .combine(hpv_bowtie2_log.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
+                       .combine(ctrl_stats.map{items->items[1]}.collect().map{[it]})
+                       .combine(GET_SOFTWARE_VERSIONS.out.collect().map{[it]})
+                       .combine(WORKFLOW_SUMMARY_MQC.out.collect().map{[it]})
+                       .combine(customRunName)
+                       .combine(stats2_multiqc_script)
+                       .combine(mqc_header_script)
+
+    )
     // }
 
 
