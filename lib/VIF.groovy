@@ -116,7 +116,7 @@ HPV v${this.workflow.manifest.version}
 
         
         this.log.info this.summary.collect { k,v -> "${k.padRight(15)}: $v" }.join("\n")
-        this.log.info "========================================="
+        this.log.info "======================================================="
     }
 
     public boolean checkGenotypes(geno){
