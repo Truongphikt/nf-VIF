@@ -2,13 +2,15 @@ include {  GET_SOFTWARE_VERSIONS       }                 from                "..
 include {  WORKFLOW_SUMMARY_MQC        }                 from                "../modules/workflow_summary_mqc.nf"
 // include {  MAKE_HPV_CONFIG_PER_SAMPLE  }                 from                "../modules/make_hpv_config_per_sample.nf"
 // include {  MULTIQC                     }                 from                "../modules/multiqc.nf"
-// include {  MAKE_HPV_CONFIG             }                 from                "../modules/make_hpv_config.nf"
+include {  MAKE_HPV_CONFIG             }                 from                "../modules/make_hpv_config.nf"
 // include {  MULTIQC_ALL_SAMPLES         }                 from                "../modules/multiqc_all_samples.nf"
 
 
 workflow MULTIQC_PROCESSING {
     take:
     vif_ob
+    filtered_sel_hpv_geno                   // ([path(sel_hpv_geno)])
+    ch_hpv_genes_coord
 
     main:
     scrape_software_versions_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_software_versions.py")
@@ -39,8 +41,14 @@ workflow MULTIQC_PROCESSING {
 
     // MULTIQC()
     // }else{
-    // MAKE_HPV_CONFIG()
-    // MULTIQC_ALL_SAMPLES
+    scrape_mqc_config_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_mqc_config.py")
+    gene_tracks_script       = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/gene_tracks.sh")
+    MAKE_HPV_CONFIG(
+        filtered_sel_hpv_geno.combine(ch_hpv_genes_coord)
+                             .combine(scrape_mqc_config_script)
+                             .combine(gene_tracks_script)
+    )
+    // MULTIQC_ALL_SAMPLES()
     // }
 
 

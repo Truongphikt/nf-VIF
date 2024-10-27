@@ -63,7 +63,7 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 chMultiqcConfig = Channel.fromPath(params.multiqcConfig)
 chOutputDocs = Channel.fromPath("$baseDir/docs/output.md")
 chFastaCtrl = Channel.fromPath(params.fastaCtrl)
-chHpvGenesCoord = Channel.fromPath(params.genesHpv)
+ch_hpv_genes_coord = Channel.fromPath(params.genesHpv)
 
 /*
  * CHANNELS
@@ -233,7 +233,8 @@ workflow{
       chFastaCtrl,
       readsTrimgalore,                        // ([val(prefix), listpath(fastq_file)])
       hpv_bwt2_base,
-      vif_ob
+      vif_ob,
+      ch_hpv_genes_coord
    )
 }
 

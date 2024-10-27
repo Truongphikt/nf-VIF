@@ -6,18 +6,21 @@ process MAKE_HPV_CONFIG {
     !params.skipMultiqc
 
     input:
-    file(geno) from hpvGenoMqcConfig.collect()
-    file genes from chHpvGenesCoord.collect()
+    tuple path(sel_hpv_geno), path(hpv_genes_coord), path(scrape_mqc_config_script), path(gene_tracks_script)
+    // file(geno) from hpvGenoMqcConfig.collect()
+    // file genes from chHpvGenesCoord.collect()
 
     output:
-    file('*conf.mqc') into mqcHpvConf
-    file('*bkp.mqc') into mqcGenepos
+    path('*conf.mqc'),                  emit: mqc_hpv_conf
+    path('*bkp.mqc'),                   emit: mqc_genepos
+    // file('*conf.mqc') into mqcHpvConf
+    // file('*bkp.mqc') into mqcGenepos
 
     script:
-    prefix = geno.toString() - "_HPVgenotyping.filtered"
+    prefix = sel_hpv_geno.toString() - "_HPVgenotyping.filtered"
     """
-    awk -F, '{print \$2}' ${geno} | sort -u > allgenotypes_unique.txt
-    scrape_mqc_config.py  allgenotypes_unique.txt > hpv_conf.mqc
-    gene_tracks.sh allgenotypes_unique.txt ${genes} 'genes' 
+    awk -F, '{print \$2}' ${sel_hpv_geno} | sort -u > allgenotypes_unique.txt
+    python $scrape_mqc_config_script  allgenotypes_unique.txt > hpv_conf.mqc
+    bash $gene_tracks_script allgenotypes_unique.txt ${hpv_genes_coord} 'genes' 
     """
 }

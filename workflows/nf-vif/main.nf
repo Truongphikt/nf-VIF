@@ -15,6 +15,7 @@ workflow NF_VIF{
     readsTrimgalore                        // ([val(prefix), listpath(fastq_file)])
     hpv_bwt2_base
     vif_ob
+    ch_hpv_genes_coord
 
 
     main:
@@ -87,6 +88,10 @@ workflow NF_VIF{
     /* MultiQC PROCESSING
     */
 
-    MULTIQC_PROCESSING(vif_ob)
+    MULTIQC_PROCESSING(
+        vif_ob,
+        filtered_sel_hpv_geno,
+        ch_hpv_genes_coord
+    )
 
 }
