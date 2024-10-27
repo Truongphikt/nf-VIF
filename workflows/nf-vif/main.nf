@@ -4,7 +4,7 @@ include {  MAPPING                       }               from        "../../subw
 include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
 include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
 include {  BLAT                          }               from        "../../subworflows/blat.nf"
-// include {  MULTIQC_PROCESSING            }               from        "../../subworflows/multiqc_processing.nf"
+include {  MULTIQC_PROCESSING            }               from        "../../subworflows/multiqc_processing.nf"
 
 workflow NF_VIF{
     take:
@@ -83,10 +83,10 @@ workflow NF_VIF{
     // ttd = Channel.from(false)
 
 
-    // /*
-    // /* MultiQC PROCESSING
-    // */
+    /*
+    /* MultiQC PROCESSING
+    */
 
-    // MULTIQC_PROCESSING()
+    MULTIQC_PROCESSING()
 
 }

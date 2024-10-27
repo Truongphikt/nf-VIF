@@ -2,8 +2,12 @@ process GET_SOFTWARE_VERSIONS {
 
     container = "phinguyen2000/hpv_version:9c95c92"
 
+    input:
+    path(scrape_software_versions_script)
+
     output:
-    file 'software_versions_mqc.yaml' into software_versions_yaml
+    path('software_versions_mqc.yaml')
+    // file 'software_versions_mqc.yaml' into software_versions_yaml
 
     script:
     """
@@ -17,6 +21,6 @@ process GET_SOFTWARE_VERSIONS {
     echo "BLAT v. 35" > v_blat.txt
     python --version 2> v_python.txt
     multiqc --version > v_multiqc.txt
-    scrape_software_versions.py > software_versions_mqc.yaml
+    python $scrape_software_versions_script > software_versions_mqc.yaml
     """
 }
