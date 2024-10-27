@@ -1,5 +1,5 @@
 process MULTIQC {
-    container "phinguyen2000/multiqc:fa5bc35"
+    container "phinguyen2000/multiqc:c42a7c6"
 
     when:
     !params.skipMultiqc

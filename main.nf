@@ -120,14 +120,14 @@ if (params.samplePlan){
   if (params.singleEnd){
     Channel
        .from(params.readPaths)
-       .collectFile() {
+       .collectFile{
          item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + '\n']
         }
        .set{ chSplan }
   }else{
      Channel
        .from(params.readPaths)
-       .collectFile() {
+       .collectFile{
          item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + ',' + item[1][1] + '\n']
         }
        .set{ chSplan }
