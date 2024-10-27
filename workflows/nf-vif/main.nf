@@ -87,6 +87,6 @@ workflow NF_VIF{
     /* MultiQC PROCESSING
     */
 
-    MULTIQC_PROCESSING()
+    MULTIQC_PROCESSING(vif_ob)
 
 }

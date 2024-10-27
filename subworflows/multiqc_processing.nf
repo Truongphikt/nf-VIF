@@ -1,5 +1,5 @@
 include {  GET_SOFTWARE_VERSIONS       }                 from                "../modules/get_software_versions.nf"
-// include {  WORKFLOW_SUMMARY_MQC        }                 from                "../modules/workflow_summary_mqc.nf"
+include {  WORKFLOW_SUMMARY_MQC        }                 from                "../modules/workflow_summary_mqc.nf"
 // include {  MAKE_HPV_CONFIG_PER_SAMPLE  }                 from                "../modules/make_hpv_config_per_sample.nf"
 // include {  MULTIQC                     }                 from                "../modules/multiqc.nf"
 // include {  MAKE_HPV_CONFIG             }                 from                "../modules/make_hpv_config.nf"
@@ -7,12 +7,15 @@ include {  GET_SOFTWARE_VERSIONS       }                 from                "..
 
 
 workflow MULTIQC_PROCESSING {
-    // take:
+    take:
+    vif_ob
 
     main:
     scrape_software_versions_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_software_versions.py")
     GET_SOFTWARE_VERSIONS(scrape_software_versions_script)
-    // WORKFLOW_SUMMARY_MQC()
+    
+    mqc_yaml_content = params.skipMultiqc? Channel.empty() : Channel.of(vif_ob.getYamlContent())
+    WORKFLOW_SUMMARY_MQC(mqc_yaml_content)
 
 
     // if (params.splitReport){

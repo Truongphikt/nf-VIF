@@ -133,4 +133,20 @@ HPV v${this.workflow.manifest.version}
             return true
         }
     }
+
+    public String getYamlContent(){
+        String context = """
+        id: 'summary'
+        description: \\" - this information is collected when the pipeline is started.\\"
+        section_name: 'Workflow Summary'
+        section_href: 'https://gitlab.curie.fr/illumina-hpv'
+        plot_type: 'html'
+        data: |
+            <dl class=\\"dl-horizontal\\">
+            ${this.summary.collect { k, v -> "                <dt>$k</dt><dd><samp>${v ?: '<span style=\\"color:#999999;\\">N/A</span>'}</samp></dd>" }.join("\n")}
+            </dl>
+        """.stripIndent()
+
+        return context
+    }
 }
