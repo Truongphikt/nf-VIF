@@ -1,5 +1,5 @@
 process MAKE_HPV_CONFIG {
-
+    tag "$prefix"
     container = "phinguyen2000/pandas:813ad74"
 
     when:

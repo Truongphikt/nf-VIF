@@ -16,6 +16,9 @@ workflow NF_VIF{
     hpv_bwt2_base
     vif_ob
     ch_hpv_genes_coord
+    chSplan
+    chMultiqcConfig
+    customRunName
 
 
     main:
@@ -91,7 +94,20 @@ workflow NF_VIF{
     MULTIQC_PROCESSING(
         vif_ob,
         filtered_sel_hpv_geno,
-        ch_hpv_genes_coord
+        ch_hpv_genes_coord,
+        chSplan,
+        chMultiqcConfig,
+        QC.out.fastqc_results,                       // ([val(sname), path(fastqc_rs)])
+        QC.out.trimming_report,                      // ([val(sname), path(trimming_report)])
+        MAPPING.out.ctrl_stats,                      // ([val(prefix), path(ctrl_stats)])
+        MAPPING.out.hpv_bowtie2_log,                 // ([val(prefix), path(hpv_bowtie2_log)])
+        MAPPING.out.hpv_geno_mqc,                    // ([val(prefix), path(sel_hpv_geno)])
+        MAPPING.out.hpv_geno_stats,                  // ([val(prefix), path(hpv_geno_stats)])
+        LOCAL_MAPPING.out.hpv_cov_stats,             // [(val(prefix), path(coverage_stats))]
+        LOCAL_MAPPING.out.hpv_bw_cov,                // [(val(prefix), path(covmatrix_mqc))]
+        EXTRACT_BREAKPOINTS_SEQUENCE.out.bkp_pos,    // [(val(prefix), path(3prime_bkp_mqc)]
+        BLAT.out.ttd,                                // ([val(prefix), path(bkptable_filtered)])
+        customRunName
     )
 
 }

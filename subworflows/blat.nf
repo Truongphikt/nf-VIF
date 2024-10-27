@@ -37,5 +37,6 @@ workflow BLAT {
                              .combine(blat_parser_script)
     )
 
-    // emit:
+    emit:
+    ttd                 =   BLAT_SUMMARY.out.ttd                // ([val(prefix), path(bkptable_filtered)])
 }

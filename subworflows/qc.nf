@@ -18,6 +18,7 @@ workflow QC {
     FASTQC(in_fastqc)
 
     emit:
-    trim_fastq = TRIMGALORE.out.trim_fastq                  // ([val(name), listpath(trimmed_fastq)])
-    trimming_report = TRIMGALORE.out.trimming_report        // ([val(name), path(trimming_report)])
+    trim_fastq = TRIMGALORE.out.trim_fastq                  // ([val(sname), listpath(trimmed_fastq)])
+    trimming_report = TRIMGALORE.out.trimming_report        // ([val(sname), path(trimming_report)])
+    fastqc_results = FASTQC.out                             // ([val(sname), path(fastqc_rs)])
 }

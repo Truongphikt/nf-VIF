@@ -7,8 +7,8 @@ process HPV_COVERAGE {
   // set val(prefix), file(bam) from hpvCovBam
 
   output:
-  tuple val(prefix), file("${pfix}_covmatrix.mqc")
-  tuple val(prefix), file("${pfix}_sorted.{bam,bam.bai}")
+  tuple val(prefix), path("${pfix}_covmatrix.mqc"),             emit: hpv_bw_cov
+  tuple val(prefix), path("${pfix}_sorted.{bam,bam.bai}"),      emit: hpv_sorted_bams
   // set val(prefix), file("*covmatrix.mqc") into hpvBwCov
   // set val(prefix), file('*sorted.{bam,bam.bai}') into hpvSortedBams
 

@@ -35,5 +35,9 @@ workflow MAPPING {
     )
 
     emit:
-    sel_hpv_geno = SELECT_GENOTYPES.out.sel_hpv_geno
+    sel_hpv_geno     = SELECT_GENOTYPES.out.sel_hpv_geno
+    ctrl_stats       = CTRL_STATS.out.ctrl_stats                // ([val(prefix), path(ctrl_stats)])
+    hpv_bowtie2_log  = HPV_MAPPING.out.hpv_bowtie2_log          // ([val(prefix), path(hpv_bowtie2_log)])
+    hpv_geno_mqc     = SELECT_GENOTYPES.out.hpv_geno_mqc        // ([val(prefix), path(sel_hpv_geno)])
+    hpv_geno_stats   = SELECT_GENOTYPES.out.hpv_geno_stats      // ([val(prefix), path(hpv_geno_stats)])
 }

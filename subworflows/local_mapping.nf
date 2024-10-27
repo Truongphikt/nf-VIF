@@ -24,6 +24,8 @@ workflow LOCAL_MAPPING {
     )
 
     emit:
-    hpv_soft_bam = HPV_LOCAL_MAPPING.out        // (val(prefix), val(hpv), path(local_bam))
+    hpv_soft_bam      = HPV_LOCAL_MAPPING.out               // [(val(prefix), val(hpv), path(local_bam))]
+    hpv_cov_stats     = HPV_LOCAL_MAPPING_STATS.out         // [(val(prefix), path(coverage_stats))]
+    hpv_bw_cov        = HPV_COVERAGE.out.hpv_bw_cov         // [(val(prefix), path(covmatrix_mqc))]
 
 }

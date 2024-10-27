@@ -234,7 +234,10 @@ workflow{
       readsTrimgalore,                        // ([val(prefix), listpath(fastq_file)])
       hpv_bwt2_base,
       vif_ob,
-      ch_hpv_genes_coord
+      ch_hpv_genes_coord,
+      chSplan,
+      chMultiqcConfig,
+      Channel.of(customRunName)
    )
 }
 
