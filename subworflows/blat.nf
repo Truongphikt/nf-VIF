@@ -1,11 +1,12 @@
-include    {  BUILD_TEST_BLAT_DB  }               from              "../modules/build_test_blat_db.nf"
-// include  {  BLAT_SOFT_CLIPPED_SEQ  }            from                "../modules/blat_soft_clipped_seq.nf"
+include    {  BUILD_TEST_BLAT_DB     }               from              "../modules/build_test_blat_db.nf"
+include    {  BLAT_SOFT_CLIPPED_SEQ  }               from              "../modules/blat_soft_clipped_seq.nf"
 // include  {  BLAT_SUMMARY           }            from                "../modules/blat_summary.nf"
 
 
 workflow BLAT {
     take:
     referenceFastaForIndex
+    clipped_seq             // [(val(pfix), val(prefix), path(clipped_seq))]
 
     main:
 
@@ -25,7 +26,9 @@ workflow BLAT {
     }
 
 
-    // BLAT_SOFT_CLIPPED_SEQ()
+    BLAT_SOFT_CLIPPED_SEQ(
+        clipped_seq.combine(blatDatabase)                       // [(val(pfix), val(prefix), path(clipped_seq), path(blatdb))]
+    )
     // BLAT_SUMMARY()
 
     // emit:

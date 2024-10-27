@@ -67,7 +67,7 @@ workflow NF_VIF{
     */
     extract_softclipped_code = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/extractSoftclipped.py")
     EXTRACT_BREAKPOINTS_SEQUENCE(
-        LOCAL_MAPPING.out.hpv_soft_bam              // [(val(prefix), val(hpv), path(local_bam))]
+        LOCAL_MAPPING.out.hpv_soft_bam                           // [(val(prefix), val(hpv), path(local_bam))]
                      .combine(extract_softclipped_code)          // [(val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code))]
     )
 
@@ -75,11 +75,11 @@ workflow NF_VIF{
     * Blat
     */  
 
-    if (!params.skipBlat){
-        BLAT(referenceFastaForIndex)
-    }else{
-        ttd = Channel.from(false)
-    }
+    BLAT(
+        referenceFastaForIndex,
+        EXTRACT_BREAKPOINTS_SEQUENCE.out.clipped_seq             // [(val(pfix), val(prefix), path(clipped_seq))]
+    )
+    // ttd = Channel.from(false)
 
 
     // /*

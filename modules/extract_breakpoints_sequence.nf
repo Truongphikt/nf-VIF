@@ -7,9 +7,9 @@ process EXTRACT_BREAKPOINTS_SEQUENCE {
    // set val(prefix), file(bam) from hpvSoftBam
 
    output:
-   tuple val(prefix), file("${pfix}_3prime_bkp.mqc"),            emit: bkp_pos
-   tuple val(pfix), file("*.csv"),                               emit: bkp_info
-   tuple val(pfix), val(prefix), file("*.fa"),                   emit: clipped_seq
+   tuple val(prefix), path("${pfix}_3prime_bkp.mqc"),            emit: bkp_pos
+   tuple val(pfix), path("*.csv"),                               emit: bkp_info
+   tuple val(pfix), val(prefix), path("*.fa"),                   emit: clipped_seq
 
    // set val(prefix), file("*.mqc") into bkpPos mode 'flatten'
    // set val(pfix), file("*.csv") into bkpInfo
