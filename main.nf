@@ -180,12 +180,6 @@ else {
    exit 1, "No reference genome specified!"
 }
 
-if ( params.blatdb ){
-   Channel.fromPath( params.blatdb )
-        .ifEmpty { exit 1, "BLAT database not found: ${params.blatdb}" }
-        .set { blatDatabase }
-}
-
 //HPV genome
 
 if ( params.bwt2IndexHpv && params.bwt2IndexHpvSplit ){

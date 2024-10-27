@@ -3,7 +3,7 @@ include {  QC                            }               from        "../../subw
 include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
 include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
 include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
-// include {  BLAT                          }               from        "../../subworflows/blat.nf"
+include {  BLAT                          }               from        "../../subworflows/blat.nf"
 // include {  MULTIQC_PROCESSING            }               from        "../../subworflows/multiqc_processing.nf"
 
 workflow NF_VIF{
@@ -71,15 +71,15 @@ workflow NF_VIF{
                      .combine(extract_softclipped_code)          // [(val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code))]
     )
 
-    // /*
-    // * Blat
-    // */  
+    /*
+    * Blat
+    */  
 
-    // if (!params.skipBlat){
-    //     BLAT()
-    // }else{
-    //     ttd = Channel.from(false)
-    // }
+    if (!params.skipBlat){
+        BLAT(referenceFastaForIndex)
+    }else{
+        ttd = Channel.from(false)
+    }
 
 
     // /*
