@@ -77,7 +77,8 @@ workflow NF_VIF{
 
     BLAT(
         referenceFastaForIndex,
-        EXTRACT_BREAKPOINTS_SEQUENCE.out.clipped_seq             // [(val(pfix), val(prefix), path(clipped_seq))]
+        EXTRACT_BREAKPOINTS_SEQUENCE.out.clipped_seq,            // [(val(pfix), val(prefix), path(clipped_seq))]
+        EXTRACT_BREAKPOINTS_SEQUENCE.out.bkp_info                // [(val(pfix), path(bkp_info))]
     )
     // ttd = Channel.from(false)
 

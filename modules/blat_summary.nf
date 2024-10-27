@@ -1,22 +1,25 @@
 process BLAT_SUMMARY {
-
-    container "phinguyen2000/pandas:813ad74"
-    
-    cpus   { check_max( 1, 'cpus' ) }
-    memory { check_max( 18.GB * task.attempt, 'memory' ) }
-    time   { check_max( 12.h * task.attempt, 'time' ) }
+    tag "$prefix:$pfix"
+    container "phinguyen2000/pandas:b4381b3"
 
     input:
-    set val(pfix), val(sname), file(psl), file(csv) from blatRes.join(bkpInfo).dump(tag:"blat")
+    tuple val(pfix), val(prefix), path(blat_res), path(bkp_info), path(blat_parser_script)
+    // set val(pfix), val(sname), file(psl), file(csv) from blatRes.join(bkpInfo).dump(tag:"blat")
 
     output:
-    set val(sname), file("*_table_filtered.csv") into ttdHQ
-    set val(sname), file("*_table.csv") into tableHQ
-    set val(sname), file("*_bkptable_filtered.csv") into ttd
-    set val(sname), file("*_bkptable.csv") into table
+    tuple val(prefix), path("*_table_filtered.csv"),                 emit:  ttd_hq
+    tuple val(prefix), path("*_table.csv"),                          emit:  table_hq
+    tuple val(prefix), path("*_bkptable_filtered.csv"),              emit:  ttd
+    tuple val(prefix), path("*_bkptable.csv"),                       emit:  table
+
+
+    // set val(prefix), file("*_table_filtered.csv") into ttdHQ
+    // set val(prefix), file("*_table.csv") into tableHQ
+    // set val(prefix), file("*_bkptable_filtered.csv") into ttd
+    // set val(prefix), file("*_bkptable.csv") into table
 
     script:
     """
-    blatParser.py -f ${psl} -b ${csv} --sname ${sname}
+    python $blat_parser_script -f ${blat_res} -b ${bkp_info} --sname ${prefix}
     """
 }
