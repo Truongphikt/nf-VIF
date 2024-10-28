@@ -2,7 +2,6 @@ include {  PREPROCESSING                 }               from        "../../subw
 include {  QC                            }               from        "../../subworflows/qc.nf"
 include {  MAPPING                       }               from        "../../subworflows/mapping.nf"
 include {  LOCAL_MAPPING                 }               from        "../../subworflows/local_mapping.nf"
-include {  EXTRACT_BREAKPOINTS_SEQUENCE  }               from        "../../modules/extract_breakpoints_sequence.nf"
 include {  BLAT                          }               from        "../../subworflows/blat.nf"
 include {  MULTIQC_PROCESSING            }               from        "../../subworflows/multiqc_processing.nf"
 
@@ -66,22 +65,12 @@ workflow NF_VIF{
     )
 
     /*
-    * Breakpoint detection
-    */
-    extract_softclipped_code = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/extractSoftclipped.py")
-    EXTRACT_BREAKPOINTS_SEQUENCE(
-        LOCAL_MAPPING.out.hpv_soft_bam                           // [(val(prefix), val(hpv), path(local_bam))]
-                     .combine(extract_softclipped_code)          // [(val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code))]
-    )
-
-    /*
     * Blat
     */  
 
     BLAT(
         referenceFastaForIndex,
-        EXTRACT_BREAKPOINTS_SEQUENCE.out.clipped_seq,            // [(val(pfix), val(prefix), path(clipped_seq))]
-        EXTRACT_BREAKPOINTS_SEQUENCE.out.bkp_info                // [(val(pfix), path(bkp_info))]
+        LOCAL_MAPPING.out.hpv_soft_bam,                          // [(val(prefix), val(hpv), path(local_bam))]
     )
     // ttd = Channel.from(false)
 
