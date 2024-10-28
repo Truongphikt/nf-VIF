@@ -23,13 +23,12 @@ workflow MULTIQC_PROCESSING {
     hpv_bw_cov                               // [(val(prefix), path(covmatrix_mqc))]
     bkp_pos                                  // [(val(prefix), path(3prime_bkp_mqc)]
     ttd                                      // ([val(prefix), path(bkptable_filtered)])
-    customRunName
 
     main:
     scrape_software_versions_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_software_versions.py")
     GET_SOFTWARE_VERSIONS(scrape_software_versions_script)
     
-    mqc_yaml_content = params.skipMultiqc? Channel.empty() : Channel.of(vif_ob.getYamlContent())
+    mqc_yaml_content = params.skipMultiqc? Channel.empty() : Channel.of(vif_ob.ymlContent)
     WORKFLOW_SUMMARY_MQC(mqc_yaml_content)
 
 
@@ -67,7 +66,6 @@ workflow MULTIQC_PROCESSING {
                         .combine(ch_hpv_report)
                         .combine(GET_SOFTWARE_VERSIONS.out)
                         .combine(WORKFLOW_SUMMARY_MQC.out)
-                        .combine(customRunName)
                         .combine(stats2_multiqc_script)
                         .combine(mqc_header_script)
     )
@@ -95,7 +93,6 @@ workflow MULTIQC_PROCESSING {
                        .combine(ctrl_stats.map{items->items[1]}.collect().map{[it]})
                        .combine(GET_SOFTWARE_VERSIONS.out.collect().map{[it]})
                        .combine(WORKFLOW_SUMMARY_MQC.out.collect().map{[it]})
-                       .combine(customRunName)
                        .combine(stats2_multiqc_script)
                        .combine(mqc_header_script)
 

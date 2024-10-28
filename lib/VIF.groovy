@@ -5,6 +5,7 @@ class VIF {
     def params
     def user
     Map summary = [:]
+    public String ymlContent
 
     VIF(workflow, log, params, user){
         this.workflow = workflow
@@ -12,6 +13,7 @@ class VIF {
         this.params = params
         this.user = user
         initializeSummary()
+        this.ymlContent = initializeYamlContent()
     }
 
 
@@ -100,8 +102,6 @@ class VIF {
         summary['Working dir']    = this.workflow.workDir
         summary['Container Engine'] = this.workflow.containerEngine
         summary['Current user']   = this.user
-        summary['Working dir']    = this.workflow.workDir
-        summary['Output dir']     = this.params.outdir
         summary['Config Profile'] = this.workflow.profile
         if(this.params.email) {
             summary['E-mail Address'] = this.params.email
@@ -134,7 +134,7 @@ HPV v${this.workflow.manifest.version}
         }
     }
 
-    public String getYamlContent(){
+    public String initializeYamlContent(){
         String context = """
         id: 'summary'
         description: \\" - this information is collected when the pipeline is started.\\"

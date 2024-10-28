@@ -236,8 +236,7 @@ workflow{
       vif_ob,
       ch_hpv_genes_coord,
       chSplan,
-      chMultiqcConfig,
-      Channel.of(customRunName)
+      chMultiqcConfig
    )
 }
 

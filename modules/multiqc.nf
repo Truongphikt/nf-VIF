@@ -11,7 +11,6 @@ process MULTIQC {
             path('hpv/*'), path('hpv/*'), path('hpv/*'), path('hpv/*'), path('hpv/*'), path('hpv/*'), path('hpv/*'), path('hpv/*'),
             path('software_versions/*'),
             path('workflow_summary/*'),
-            val(customRunName),
             path(stats2_multiqc_script),
             path(mqc_header_script)
 
@@ -31,8 +30,8 @@ process MULTIQC {
     // file "*_data"
 
     script:
-    rtitle = customRunName ? "--title \"$customRunName\"" : ''
-    rfilename = customRunName ? "--filename " + customRunName.replaceAll('\\W','_').replaceAll('_+','_') + "_" + prefix + "_multiqc_report" : ''
+    rtitle = workflow.runName ? "--title \"${workflow.runName}\"" : ''
+    rfilename = workflow.runName ? "--filename " + workflow.runName.replaceAll('\\W','_').replaceAll('_+','_') + "_" + prefix + "_multiqc_report" : ''
     metadataOpts = params.metadata ? "--metadata ${metadata}" : ""
     splanOpts = params.samplePlan ? "--splan ${params.samplePlan}" : ""
     """

@@ -18,7 +18,6 @@ workflow NF_VIF{
     ch_hpv_genes_coord
     chSplan
     chMultiqcConfig
-    customRunName
 
 
     main:
@@ -106,8 +105,7 @@ workflow NF_VIF{
         LOCAL_MAPPING.out.hpv_cov_stats,             // [(val(prefix), path(coverage_stats))]
         LOCAL_MAPPING.out.hpv_bw_cov,                // [(val(prefix), path(covmatrix_mqc))]
         EXTRACT_BREAKPOINTS_SEQUENCE.out.bkp_pos,    // [(val(prefix), path(3prime_bkp_mqc)]
-        BLAT.out.ttd,                                // ([val(prefix), path(bkptable_filtered)])
-        customRunName
+        BLAT.out.ttd                                 // ([val(prefix), path(bkptable_filtered)])
     )
 
 }

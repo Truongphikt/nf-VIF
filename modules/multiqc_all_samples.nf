@@ -12,7 +12,6 @@ process MULTIQC_ALL_SAMPLES {
           path('hpv/*'), path('hpv/*'),
           path('ctrl/*'), 
           path('software_versions/*'), path('workflow_summary/*'),
-          val(customRunName),
           path(stats2_multiqc_script), path(mqc_header_script)
 
     // file splan from chSplan.first()
@@ -41,8 +40,8 @@ process MULTIQC_ALL_SAMPLES {
     // file "*_data"
 
     script:
-    rtitle = customRunName ? "--title \"$customRunName\"" : ''
-    rfilename = customRunName ? "--filename " + customRunName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
+    rtitle = workflow.runName ? "--title \"${workflow.runName}\"" : ''
+    rfilename = workflow.runName ? "--filename " + workflow.runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
     metadataOpts = params.metadata ? "--metadata ${metadata}" : ""
     splanOpts = params.samplePlan ? "--splan ${params.samplePlan}" : ""
     """	
