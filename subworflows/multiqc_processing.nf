@@ -38,7 +38,7 @@ workflow MULTIQC_PROCESSING {
     mqc_header_script        = Channel.fromPath("$projectDir/src/mqc_header.py")
 
 
-    // if (params.splitReport){
+
 
     MAKE_HPV_CONFIG_PER_SAMPLE(
         filtered_sel_hpv_geno.combine(ch_hpv_genes_coord)
@@ -61,6 +61,8 @@ workflow MULTIQC_PROCESSING {
                                 .dump(tag: "join")
                                 .set{ch_hpv_report}
 
+    if (params.splitReport){
+
     MULTIQC(
         ch_splan.first().combine(ch_multiqc_config.first())
                         .combine(ch_hpv_report)
@@ -69,7 +71,7 @@ workflow MULTIQC_PROCESSING {
                         .combine(stats2_multiqc_script)
                         .combine(mqc_header_script)
     )
-    // }else{
+    }else{
     
     MAKE_HPV_CONFIG(
         filtered_sel_hpv_geno.combine(ch_hpv_genes_coord)
@@ -97,10 +99,7 @@ workflow MULTIQC_PROCESSING {
                        .combine(mqc_header_script)
 
     )
-    // }
-
-
-    // emit:
+    }
 
 
 }
