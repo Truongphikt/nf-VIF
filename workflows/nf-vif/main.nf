@@ -7,16 +7,16 @@ include {  MULTIQC_PROCESSING            }               from        "../../subw
 
 workflow NF_VIF{
     take:
-    bwt2RefIndex
-    referenceFastaForIndex
-    hpvFastaForIndex
-    chFastaCtrl
-    readsTrimgalore                        // ([val(prefix), listpath(fastq_file)])
+    bwt2_ref_index
+    reference_fasta_for_index
+    hpv_fasta_for_index
+    ch_fasta_ctrl
+    reads_trimgalore                        // ([val(prefix), listpath(fastq_file)])
     hpv_bwt2_base
     vif_ob
     ch_hpv_genes_coord
-    chSplan
-    chMultiqcConfig
+    ch_splan
+    ch_multiqc_config
 
 
     main:
@@ -25,10 +25,10 @@ workflow NF_VIF{
     */
 
     PREPROCESSING(
-        bwt2RefIndex,
-        referenceFastaForIndex,
-        hpvFastaForIndex,
-        chFastaCtrl
+        bwt2_ref_index,
+        reference_fasta_for_index,
+        hpv_fasta_for_index,
+        ch_fasta_ctrl
     )
 
     /**************************** Main worflow ******************************
@@ -37,7 +37,7 @@ workflow NF_VIF{
     /*
     * Quality control
     */
-    QC(readsTrimgalore)
+    QC(reads_trimgalore)
 
     /*
     * Mapping
@@ -69,7 +69,7 @@ workflow NF_VIF{
     */  
 
     BLAT(
-        referenceFastaForIndex,
+        reference_fasta_for_index,
         LOCAL_MAPPING.out.hpv_soft_bam,                          // [(val(prefix), val(hpv), path(local_bam))]
     )
     // ttd = Channel.from(false)
@@ -83,8 +83,8 @@ workflow NF_VIF{
         vif_ob,
         filtered_sel_hpv_geno,
         ch_hpv_genes_coord,
-        chSplan,
-        chMultiqcConfig,
+        ch_splan,
+        ch_multiqc_config,
         QC.out.fastqc_results,                       // ([val(sname), path(fastqc_rs)])
         QC.out.trimming_report,                      // ([val(sname), path(trimming_report)])
         MAPPING.out.ctrl_stats,                      // ([val(prefix), path(ctrl_stats)])

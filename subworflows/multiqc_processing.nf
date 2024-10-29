@@ -11,8 +11,8 @@ workflow MULTIQC_PROCESSING {
     vif_ob
     filtered_sel_hpv_geno                    // ([path(sel_hpv_geno)])
     ch_hpv_genes_coord
-    chSplan
-    chMultiqcConfig
+    ch_splan
+    ch_multiqc_config
     fastqc_results                           // ([val(sname), path(fastqc_rs)])
     trimming_report                          // ([val(sname), path(trimming_report)])
     ctrl_stats                               // ([val(prefix), path(ctrl_stats)])
@@ -62,7 +62,7 @@ workflow MULTIQC_PROCESSING {
                                 .set{ch_hpv_report}
 
     MULTIQC(
-        chSplan.first().combine(chMultiqcConfig.first())
+        ch_splan.first().combine(ch_multiqc_config.first())
                         .combine(ch_hpv_report)
                         .combine(GET_SOFTWARE_VERSIONS.out)
                         .combine(WORKFLOW_SUMMARY_MQC.out)
@@ -76,9 +76,9 @@ workflow MULTIQC_PROCESSING {
                              .combine(scrape_mqc_config_script)
                              .combine(gene_tracks_script)
     )
-    qc_all_sample_ch = chSplan.combine(chMultiqcConfig)
+    qc_all_sample_ch = ch_splan.combine(ch_multiqc_config)
     MULTIQC_ALL_SAMPLES(
-        chSplan.first().combine(chMultiqcConfig.first().map{[it]})
+        ch_splan.first().combine(ch_multiqc_config.first().map{[it]})
                        .combine(MAKE_HPV_CONFIG_PER_SAMPLE.out.mqc_hpv_conf.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
                        .combine(fastqc_results.map{items->items[1]}.collect().ifEmpty([]).map{[it]})
                        .combine(trimming_report.map{items->items[1]}.collect().ifEmpty([]).map{[it]})

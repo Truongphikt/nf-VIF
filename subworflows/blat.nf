@@ -6,7 +6,7 @@ include    {  BLAT_SUMMARY                  }               from        "../modu
 
 workflow BLAT {
     take:
-    referenceFastaForIndex
+    reference_fasta_for_index
     hpv_soft_bam            // [(val(prefix), val(hpv), path(local_bam))]
 
     main:
@@ -29,7 +29,7 @@ workflow BLAT {
     * BLAT
     */
     if (!params.skipBlat && !params.blatdb && (workflow.profile =~ /test/)){
-        BUILD_TEST_BLAT_DB(referenceFastaForIndex)
+        BUILD_TEST_BLAT_DB(reference_fasta_for_index)
         blatDatabase = BUILD_TEST_BLAT_DB.out
     }
 

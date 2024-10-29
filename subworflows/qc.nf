@@ -3,15 +3,15 @@ include {  FASTQC      }                  from            "../modules/fastqc.nf"
 
 workflow QC {
     take:
-    readsTrimgalore                        // ([val(sname), listpath(fastq_file)])
+    reads_trimgalore                        // ([val(sname), listpath(fastq_file)])
 
     main:
     if (!params.skipTrimming){
-        TRIMGALORE(readsTrimgalore)
+        TRIMGALORE(reads_trimgalore)
         trim_fastq = TRIMGALORE.out.trim_fastq
         trimming_report = TRIMGALORE.out.trimming_report
     }else{
-        trim_fastq = readsTrimgalore
+        trim_fastq = reads_trimgalore
         trimming_report = Channel.empty()
     }
  

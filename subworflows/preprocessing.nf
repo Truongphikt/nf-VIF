@@ -5,15 +5,15 @@ include {  MAKE_BOWTIE2_INDEX_CTRL }        from        "../modules/make_bowtie2
 
 workflow PREPROCESSING{
     take:
-    bwt2RefIndex
-    referenceFastaForIndex
-    hpvFastaForIndex
-    chFastaCtrl
+    bwt2_ref_index
+    reference_fasta_for_index
+    hpv_fasta_for_index
+    ch_fasta_ctrl
 
     main:
-    MAKE_BOWTIE2_INDEX(referenceFastaForIndex)
-    MAKE_BOWTIE2_INDEX_HPV(hpvFastaForIndex)
-    MAKE_BOWTIE2_INDEX_CTRL(chFastaCtrl)
+    MAKE_BOWTIE2_INDEX(reference_fasta_for_index)
+    MAKE_BOWTIE2_INDEX_HPV(hpv_fasta_for_index)
+    MAKE_BOWTIE2_INDEX_CTRL(ch_fasta_ctrl)
 
     emit:
     bwt2_index_ctrl      = MAKE_BOWTIE2_INDEX_CTRL.out                  // ([path(bwt2_index_ctrl_folder)])

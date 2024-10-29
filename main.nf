@@ -54,15 +54,15 @@ params.fastaCtrl = params.genomes['HPV'].ctrlCapture ?: false
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
-customRunName = params.name
+custom_run_name = params.name
 if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
-  customRunName = workflow.runName
+  custom_run_name = workflow.runName
 }
 
 // Stage config files
-chMultiqcConfig = Channel.fromPath(params.multiqcConfig)
-chOutputDocs = Channel.fromPath("$baseDir/docs/output.md")
-chFastaCtrl = Channel.fromPath(params.fastaCtrl)
+ch_multiqc_config = Channel.fromPath(params.multiqc_config)
+ch_output_docs = Channel.fromPath("$baseDir/docs/output.md")
+ch_fasta_ctrl = Channel.fromPath(params.fastaCtrl)
 ch_hpv_genes_coord = Channel.fromPath(params.genesHpv)
 
 /*
@@ -79,13 +79,13 @@ if(params.samplePlan){
          .fromPath("${params.samplePlan}")
          .splitCsv(header: false)
          .map{ row -> [ row[0], [row[2]]] }
-         .set {readsTrimgalore}
+         .set {reads_trimgalore}
    }else{
       Channel
          .fromPath("${params.samplePlan}")
          .splitCsv(header: false)
          .map{ row -> [ row[0], [row[2], row[3]]] }
-         .set {readsTrimgalore}
+         .set {reads_trimgalore}
    }
    params.reads=false
 }
@@ -95,19 +95,19 @@ else if(params.readPaths){
             .from(params.readPaths)
             .map { row -> [ row[0], [file(row[1][0])]] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .set {readsTrimgalore}
+            .set {reads_trimgalore}
     } else {
         Channel
             .from(params.readPaths)
             .map { row -> [ row[0], [file(row[1][0]), file(row[1][1])]] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .set {readsTrimgalore}
+            .set {reads_trimgalore}
     }
 } else {
     Channel
         .fromFilePairs( params.reads, size: params.singleEnd ? 1 : 2 )
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nNB: Path requires at least one * wildcard!\nIf this is single-end data, please specify --singleEnd on the command line." }
-        .set {readsTrimgalore}
+        .set {reads_trimgalore}
 }
 
 /*
@@ -115,7 +115,7 @@ else if(params.readPaths){
  */
 
 if (params.samplePlan){
-  chSplan = Channel.fromPath(params.samplePlan)
+  ch_splan = Channel.fromPath(params.samplePlan)
 }else if(params.readPaths){
   if (params.singleEnd){
     Channel
@@ -123,14 +123,14 @@ if (params.samplePlan){
        .collectFile{
          item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + '\n']
         }
-       .set{ chSplan }
+       .set{ ch_splan }
   }else{
      Channel
        .from(params.readPaths)
        .collectFile{
          item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + ',' + item[1][1] + '\n']
         }
-       .set{ chSplan }
+       .set{ ch_splan }
   }
 }else{
   if (params.singleEnd){
@@ -139,14 +139,14 @@ if (params.samplePlan){
        .collectFile() {
           item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + '\n']
        }     
-       .set { chSplan }
+       .set { ch_splan }
   }else{
     Channel
        .fromFilePairs( params.reads, size: 2 )
        .collectFile() {
           item -> ["samplePlan.csv", item[0] + ',' + item[0] + ',' + item[1][0] + ',' + item[1][1] + '\n']
        }     
-       .set { chSplan }
+       .set { ch_splan }
    }
 }
 
@@ -163,18 +163,18 @@ if ( params.bwt2Index ){
 
    Channel.fromPath( refBwt2Dir , checkIfExists: true)
       .ifEmpty { exit 1, "Genome index: Provided index not found: ${params.bwt2Index}" }
-      .set { bwt2RefIndex }
+      .set { bwt2_ref_index }
    
-   referenceFastaForIndex = Channel.empty()
+   reference_fasta_for_index = Channel.empty()
 }
 else if ( params.fasta ) {
    lastPath = params.fasta.lastIndexOf(File.separator)
    refBwt2Base = params.fasta.substring(lastPath+1)
 
-   bwt2RefIndex = Channel.empty()
+   bwt2_ref_index = Channel.empty()
    Channel.fromPath( params.fasta )
         .ifEmpty { exit 1, "Genome index: Fasta file not found: ${params.fasta}" }
-        .set { referenceFastaForIndex }
+        .set { reference_fasta_for_index }
 }
 else {
    exit 1, "No reference genome specified!"
@@ -199,7 +199,7 @@ if ( params.bwt2IndexHpv && params.bwt2IndexHpvSplit ){
       .ifEmpty { exit 1, "HPV index per strain: Provided index not found: ${params.bwt2IndexHpvSplit}" }
       .set { bwt2IndexHpvSplit }
 
-   hpvFastaForIndex = Channel.empty()
+   hpv_fasta_for_index = Channel.empty()
 }
 else if ( params.fastaHpv ){
    lastPath = params.fastaHpv.lastIndexOf(File.separator)
@@ -207,7 +207,7 @@ else if ( params.fastaHpv ){
 
    Channel.fromPath( params.fastaHpv )
         .ifEmpty { exit 1, "HPV index: Fasta file not found: ${params.fastaHpv}" }
-        .set { hpvFastaForIndex }
+        .set { hpv_fasta_for_index }
 }
 else{
    exit 1, "No HPV genome specified!"
@@ -227,16 +227,16 @@ include {  NF_VIF  }                from           "./workflows/nf-vif/main.nf"
 
 workflow{
    NF_VIF(
-      bwt2RefIndex,
-      referenceFastaForIndex,
-      hpvFastaForIndex,
-      chFastaCtrl,
-      readsTrimgalore,                        // ([val(prefix), listpath(fastq_file)])
+      bwt2_ref_index,
+      reference_fasta_for_index,
+      hpv_fasta_for_index,
+      ch_fasta_ctrl,
+      reads_trimgalore,                        // ([val(prefix), listpath(fastq_file)])
       hpv_bwt2_base,
       vif_ob,
       ch_hpv_genes_coord,
-      chSplan,
-      chMultiqcConfig
+      ch_splan,
+      ch_multiqc_config
    )
 }
 

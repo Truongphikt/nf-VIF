@@ -5,7 +5,7 @@ process MULTIQC_ALL_SAMPLES {
     !params.skipMultiqc
 
     input:
-    tuple path(splan), path(multiqcConfig), path(hpvConfig),
+    tuple path(splan), path(multiqc_config), path(hpvConfig),
           path('fastqc/*'), path('trimming/*'),
           path('hpv/*'), path('hpv/*'), path('hpv/*'),
           path('hpv/*'), path('hpv/*'), path('hpv/*'),
@@ -47,6 +47,6 @@ process MULTIQC_ALL_SAMPLES {
     """	
     bash $stats2_multiqc_script ${splan}
     python $mqc_header_script --name "nf-VIF" --version ${workflow.manifest.version} ${metadataOpts} ${splanOpts} > multiqc-config-header.yaml         
-    multiqc . -f $rtitle $rfilename -c $multiqcConfig -c $hpvConfig -c multiqc-config-header.yaml -m fastqc -m custom_content
+    multiqc . -f $rtitle $rfilename -c $multiqc_config -c $hpvConfig -c multiqc-config-header.yaml -m fastqc -m custom_content
     """
 }
