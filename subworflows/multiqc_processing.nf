@@ -25,17 +25,17 @@ workflow MULTIQC_PROCESSING {
     ttd                                      // ([val(prefix), path(bkptable_filtered)])
 
     main:
-    scrape_software_versions_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_software_versions.py")
+    scrape_software_versions_script = Channel.fromPath("$projectDir/src/scrape_software_versions.py")
     GET_SOFTWARE_VERSIONS(scrape_software_versions_script)
     
     mqc_yaml_content = params.skipMultiqc? Channel.empty() : Channel.of(vif_ob.ymlContent)
     WORKFLOW_SUMMARY_MQC(mqc_yaml_content)
 
 
-    scrape_mqc_config_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/scrape_mqc_config.py")
-    gene_tracks_script       = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/gene_tracks.sh")
-    stats2_multiqc_script    = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/stats2multiqc.sh")
-    mqc_header_script        = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/mqc_header.py")
+    scrape_mqc_config_script = Channel.fromPath("$projectDir/src/scrape_mqc_config.py")
+    gene_tracks_script       = Channel.fromPath("$projectDir/src/gene_tracks.sh")
+    stats2_multiqc_script    = Channel.fromPath("$projectDir/src/stats2multiqc.sh")
+    mqc_header_script        = Channel.fromPath("$projectDir/src/mqc_header.py")
 
 
     // if (params.splitReport){

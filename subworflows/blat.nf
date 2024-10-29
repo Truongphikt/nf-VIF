@@ -14,7 +14,7 @@ workflow BLAT {
     /*
     * Breakpoint detection
     */
-    extract_softclipped_code = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/extractSoftclipped.py")
+    extract_softclipped_code = Channel.fromPath("$projectDir/src/extractSoftclipped.py")
     EXTRACT_BREAKPOINTS_SEQUENCE(
         hpv_soft_bam.combine(extract_softclipped_code)          // [(val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code))]
     )
@@ -43,7 +43,7 @@ workflow BLAT {
                                     .combine(blatDatabase)                              // [(val(pfix), val(prefix), path(clipped_seq), path(blatdb))]
     )
 
-    blat_parser_script = Channel.fromPath("https://raw.githubusercontent.com/Truongphikt/nf-VIF/refs/heads/master/src/blatParser.py")
+    blat_parser_script = Channel.fromPath("$projectDir/src/blatParser.py")
     BLAT_SUMMARY(
         BLAT_SOFT_CLIPPED_SEQ.out
                         .combine(
