@@ -32,7 +32,7 @@ class VIF {
         --reads                       Path to input data (must be surrounded with quotes)
         --samplePlan                  Path to sample plan file if '--reads' is not specified
         --genome                      Name of iGenomes reference
-        -profile                      Configuration profile to use. test / conda / toolsPath / singularity / cluster (see below)
+        -profile                      Configuration profile to use. test / toolsPath / singularity / cluster (see below)
 
         Options:
         --singleEnd                   Specifies that the input is single end reads
@@ -70,10 +70,10 @@ class VIF {
         =======================================================                                                                                                                                                 
         Available Profiles
         -profile test                Set up the test dataset
-        -profile conda               Build a new conda environment before running the pipeline
         -profile toolsPath           Use the paths defined in configuration for each tool
         -profile singularity         Use the Singularity images for each process
         -profile cluster             Run the workflow on the cluster, instead of locally
+        -profile gcloud              Run the workflow with google Batch
 
         """.stripIndent()
     }
