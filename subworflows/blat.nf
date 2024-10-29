@@ -53,5 +53,6 @@ workflow BLAT {
     )
 
     emit:
-    ttd                 =   BLAT_SUMMARY.out.ttd                // ([val(prefix), path(bkptable_filtered)])
+    ttd                 =   BLAT_SUMMARY.out.ttd                            // ([val(prefix), path(bkptable_filtered)])
+    bkp_pos             =   EXTRACT_BREAKPOINTS_SEQUENCE.out.bkp_pos        // [(val(prefix), path(3prime_bkp_mqc)]
 }
