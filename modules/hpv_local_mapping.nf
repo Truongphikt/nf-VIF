@@ -1,5 +1,11 @@
 process HPV_LOCAL_MAPPING {
   tag "$prefix:$hpv"
+
+  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy',
+      saveAs: {filename ->
+          if (filename.endsWith(".log")) "logs/$filename"
+	  else if (params.saveAlignedIntermediates) filename
+          else null}
   
   input:
   tuple val(prefix), val(hpv), path(trimmed_fastq), path(bwt2_index_hpv_split)

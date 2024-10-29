@@ -3,6 +3,9 @@ process TRIMGALORE {
 
     container "phinguyen2000/trim-galore:231627f"
 
+    publishDir "${params.outdir}/trimming", mode: 'copy',
+                 saveAs: {filename -> filename.indexOf(".log") > 0 ? "logs/$filename" : "$filename"}
+
     input:
     tuple val(name), path(fastq_files)
     //  set val(name), file(reads) from readsTrimgalore

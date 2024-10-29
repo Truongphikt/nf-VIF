@@ -1,5 +1,8 @@
 process MAKE_BOWTIE2_INDEX {
     tag "$refBwt2Base"
+
+    publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
+              saveAs: { params.saveReference ? it : null }, mode: 'copy'
     
     input:
     path(reference_fasta)

@@ -2,6 +2,8 @@ process BLAT_SUMMARY {
     tag "$prefix:$pfix"
     container "phinguyen2000/pandas:b4381b3"
 
+    publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
+
     input:
     tuple val(pfix), val(prefix), path(blat_res), path(bkp_info), path(blat_parser_script)
     // set val(pfix), val(sname), file(psl), file(csv) from blatRes.join(bkpInfo).dump(tag:"blat")

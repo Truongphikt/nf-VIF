@@ -1,6 +1,12 @@
 process HPV_MAPPING {
   tag "$prefix"
 
+  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy',
+        saveAs: {filename ->
+            if (filename.endsWith(".log")) "logs/$filename"
+            else if (params.saveAlignedIntermediates) filename
+	    else null}
+
   input:
   tuple val(prefix), path(trimmed_fastq), path(bwt2_index_hpv), val(hpv_bwt2_base)
 //   set val(prefix), file(reads) from readsHpvmap

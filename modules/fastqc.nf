@@ -3,6 +3,9 @@ process FASTQC {
 
     container "phinguyen2000/fastqc:7df4ab6"
 
+    publishDir "${params.outdir}/fastqc", mode: 'copy',
+        saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
+
     input:
     tuple val(name), path(trimmed_fastq)
     // set val(name), file(reads) from readsFastqc

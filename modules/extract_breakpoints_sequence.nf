@@ -2,6 +2,11 @@ process EXTRACT_BREAKPOINTS_SEQUENCE {
    tag "$prefix:$hpv"
    container "phinguyen2000/pandas:b4381b3"
 
+   publishDir "${params.outdir}/hpvMapping/softclipped", mode: 'copy',
+               saveAs: {filename -> 
+                   if (filename.indexOf(".mqc") > 0) "mqc/$filename"
+		   else filename}
+
    input:
    tuple val(prefix), val(hpv), path(local_bam), path(extract_softclipped_code)
    // set val(prefix), file(bam) from hpvSoftBam

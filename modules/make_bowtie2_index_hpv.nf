@@ -2,6 +2,9 @@ process MAKE_BOWTIE2_INDEX_HPV {
     
     container "phinguyen2000/hpv_version:9c95c92"
 
+    publishDir path: { params.saveReference ? "${params.outdir}/references" : params.outdir },
+              saveAs: { params.saveReference ? it : null }, mode: 'copy'
+
     input:
     path(hpv_fasta_for_index)
     // file fasta from hpvFastaForIndex

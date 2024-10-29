@@ -1,6 +1,8 @@
 process BLAT_SOFT_CLIPPED_SEQ {
     tag "$prefix:$pfix"
 
+    publishDir "${params.outdir}/hpvMapping/blat", mode: 'copy'
+
     container "phinguyen2000/blat:255336f"
 
     input:

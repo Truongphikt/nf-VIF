@@ -1,6 +1,8 @@
 process HPV_LOCAL_MAPPING_STATS {
   tag "$prefix:$hpv"
   container "phinguyen2000/bedtools:59cb403"
+
+  publishDir "${params.outdir}/hpvMapping/pergenotype", mode: 'copy'
   
   input:
   tuple val(prefix), val(hpv), path(local_bam)

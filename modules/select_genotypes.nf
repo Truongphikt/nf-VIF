@@ -1,6 +1,8 @@
 process SELECT_GENOTYPES{
   tag "$prefix"
 
+  publishDir "${params.outdir}/hpvMapping/allref", mode: 'copy'
+
   input:
   tuple val(prefix), path(hpv_bam)
   // set val(prefix), file(bam) from hpvBam 
